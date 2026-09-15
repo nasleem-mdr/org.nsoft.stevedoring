@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.adempiere.base.IModelFactory;
 import org.compiere.model.PO;
 import org.compiere.util.Env;
+import org.nsoft.stevedoring.model.MStevBerth;
 import org.nsoft.stevedoring.model.MStevStatementOfFact;
 import org.nsoft.stevedoring.model.MStevTallyLine;
 import org.nsoft.stevedoring.model.MStevTallySheet;
@@ -30,6 +31,8 @@ public class StevedoringModelFactory implements IModelFactory
         {
             case MStevVessel.Table_Name:
                 return MStevVessel.class;
+            case MStevBerth.Table_Name:
+                return MStevBerth.class;
             case MStevVesselSchedule.Table_Name:
                 return MStevVesselSchedule.class;
             case MStevTallySheet.Table_Name:
