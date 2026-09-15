@@ -35,6 +35,13 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
         return new MOrder(getCtx(), getC_Order_ID(), get_TrxName());
     }
 
+    /** Dermaga tempat kapal sandar (STEV_Berth_ID, menggantikan free-text BerthLocation) */
+    public MStevBerth getBerth()
+    {
+        int berthId = get_ValueAsInt("STEV_Berth_ID");
+        return berthId > 0 ? new MStevBerth(getCtx(), berthId, get_TrxName()) : null;
+    }
+
     /** Menandai kapal sudah benar-benar sandar (ATB terisi) */
     public boolean isVesselBerthed()
     {
