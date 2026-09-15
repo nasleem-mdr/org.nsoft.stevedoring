@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Build Tycho standar untuk plugin OSGi iDempiere.
+        Disesuaikan dengan pola build plugin org.nsoft lain (autoprice,
+        workflow.activities, wf.visualizer) — jalankan sebagai module di
+        bawah root aggregator iDempiere ("mvn -f pom.xml clean verify"),
+        atau bisa juga di-build berdiri sendiri jika parent tidak dipakai
+        (tinggal hapus tag <parent> dan lengkapi <repositories> p2 di bawah).
+    -->
+    <parent>
+        <groupId>org.idempiere</groupId>
+        <artifactId>org.idempiere.parent</artifactId>
+        <version>13.0.0-SNAPSHOT</version>
+        <relativePath>../org.idempiere.parent</relativePath>
+    </parent>
+
+    <groupId>org.nsoft</groupId>
+    <artifactId>org.nsoft.stevedoring</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>eclipse-plugin</packaging>
+
+    <name>NSoft Stevedoring Module</name>
+    <description>
+        Plugin OSGi iDempiere untuk modul Stevedoring: Vessel Schedule,
+        Tally Sheet/Line, Statement of Fact, dan Auto-Adjustment &amp;
+        Delivery (M_InOut / C_Invoice) yang terhubung ke Sales Order (SPK).
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <tycho.version>2.7.5</tycho.version>
+    </properties>
+
+    <!--
+        Jika di-build TANPA parent aggregator iDempiere, tambahkan
+        p2 repository berikut agar dependency org.adempiere.base,
+        org.osgi.framework, dsb. bisa di-resolve oleh Tycho:
+
+        <repositories>
+            <repository>
+                <id>idempiere-p2</id>
+                <url>https://your-idempiere-update-site/</url>
+                <layout>p2</layout>
+            </repository>
+        </repositories>
+    -->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-compiler-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
