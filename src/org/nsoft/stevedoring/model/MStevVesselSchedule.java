@@ -51,13 +51,52 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
     @Override
     protected boolean beforeSave(boolean newRecord)
     {
-        Timestamp eta = getETA();
-        Timestamp etd = getETD();
-        if (eta != null && etd != null && etd.before(eta))
+        // --- Validasi urutan waktu rencana (Estimated): ETA -> ETB -> ETD ---
+        String err = validateSequence(getETA(), getETB(), "ETB tidak boleh sebelum ETA");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        err = validateSequence(getETB(), getETD(), "ETD tidak boleh sebelum ETB");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        err = validateSequence(getETA(), getETD(), "ETD tidak boleh sebelum ETA");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        // --- Validasi urutan waktu realisasi (Actual): ATA -> ATB -> ATD ---
+        err = validateSequence(getATA(), getATB(), "ATB (mulai sandar) tidak boleh sebelum ATA (kapal tiba)");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        err = validateSequence(getATB(), getATD(), "ATD (berangkat) tidak boleh sebelum ATB (mulai sandar)");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        err = validateSequence(getATA(), getATD(), "ATD (berangkat) tidak boleh sebelum ATA (kapal tiba)");
+        if (err != null) { log.saveError("Error", err); return false; }
+
+        // --- Validasi silang: realisasi tidak boleh mengisi tahap yang
+        //     tahap sebelumnya belum terisi (mis. ATB terisi tapi ATA kosong
+        //     berarti kapal dianggap sandar tanpa pernah tiba) ---
+        if (getATB() != null && getATA() == null)
         {
-            log.saveError("Error", "ETD tidak boleh sebelum ETA");
+            log.saveError("Error", "ATB tidak boleh diisi sebelum ATA (kapal tiba) diisi");
             return false;
         }
+        if (getATD() != null && getATB() == null)
+        {
+            log.saveError("Error", "ATD tidak boleh diisi sebelum ATB (mulai sandar) diisi");
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Pastikan `first` tidak sesudah `second` bila keduanya terisi.
+     * Mengembalikan pesan error, atau null jika valid / salah satu kosong
+     * (field Actual memang boleh belum terisi di tengah proses).
+     */
+    private String validateSequence(Timestamp first, Timestamp second, String errorMessage)
+    {
+        if (first != null && second != null && second.before(first))
+            return errorMessage;
+        return null;
     }
 }
