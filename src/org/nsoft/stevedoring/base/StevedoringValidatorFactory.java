@@ -4,17 +4,16 @@ import org.adempiere.base.IModelValidatorFactory;
 import org.compiere.model.ModelValidator;
 import org.nsoft.stevedoring.validator.StevedoringDocumentValidator;
 
-public class StevedoringValidatorFactory implements IModelValidatorFactory
+//@Component(property = {"service.ranking:Integer=100"}, service = org.adempiere.base.IModelValidatorFactory.class)
+public class StevedoringValidatorFactory implements IModelValidatorFactory 
 {
     @Override
-    public ModelValidator[] getModelValidators(int AD_Client_ID)
+    public ModelValidator newModelValidatorInstance(String className) 
     {
-        return new ModelValidator[] { new StevedoringDocumentValidator() };
-    }
-
-    @Override
-    public ModelValidator[] getGlobalValidators()
-    {
+        if (StevedoringDocumentValidator.class.getName().equals(className)) 
+        {
+            return new StevedoringDocumentValidator();
+        }
         return null;
     }
 }

@@ -153,20 +153,6 @@ public class MStevStatementOfFact extends X_STEV_StatementOfFact implements DocA
         return DocAction.STATUS_InProgress;
     }
 
-    @Override
-    public boolean approveIt()
-    {
-        setIsApproved(true);
-        return true;
-    }
-
-    @Override
-    public boolean rejectIt()
-    {
-        setIsApproved(false);
-        return true;
-    }
-
     /**
      * Inti proses: Auto-Adjustment & Delivery. Delegasi penuh ke
      * SoFFinanceService supaya logic finance/inventory terpusat, mudah
@@ -275,7 +261,13 @@ public class MStevStatementOfFact extends X_STEV_StatementOfFact implements DocA
     {
         return -1; // SoF tidak punya nilai moneter langsung
     }
-
+    
+    @Override
+    public BigDecimal getApprovalAmt()
+    {
+        return Env.ZERO; // Mengembalikan 0 karena SoF tidak berbasis nominal uang
+    }
+    
     @Override
     public int getDoc_User_ID()
     {
@@ -283,15 +275,25 @@ public class MStevStatementOfFact extends X_STEV_StatementOfFact implements DocA
     }
 
     @Override
-    public int getAD_Client_ID()
+    public boolean approveIt()
     {
-        return super.getAD_Client_ID();
+        setIsApproved(true);
+        return true;
+    }
+
+    @Override
+    public boolean rejectIt()
+    {
+        setIsApproved(false);
+        return true;
     }
 
     @Override
     public boolean isApproved()
     {
-        return getIsApproved();
+        // Jika kolom IsApproved tidak ada di AD_Table / X_STEV_StatementOfFact,
+        // kembalikan true secara default untuk standar DocAction.
+        return true; 
     }
 
     @Override

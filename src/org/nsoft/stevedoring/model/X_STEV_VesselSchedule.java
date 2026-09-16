@@ -32,7 +32,7 @@ public class X_STEV_VesselSchedule extends PO implements I_STEV_VesselSchedule, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20260915L;
+	private static final long serialVersionUID = 20260916L;
 
     /** Standard Constructor */
     public X_STEV_VesselSchedule (Properties ctx, int STEV_VesselSchedule_ID, String trxName)
@@ -236,6 +236,35 @@ public class X_STEV_VesselSchedule extends PO implements I_STEV_VesselSchedule, 
 	}
 
 	@Deprecated(since="13") // use better methods with cache
+	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_ID)
+			.getPO(getC_DocType_ID(), get_TrxName());
+	}
+
+	/** Set Document Type.
+		@param C_DocType_ID Document type or rules
+	*/
+	public void setC_DocType_ID (int C_DocType_ID)
+	{
+		if (C_DocType_ID < 0)
+			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_C_DocType_ID, Integer.valueOf(C_DocType_ID));
+	}
+
+	/** Get Document Type.
+		@return Document type or rules
+	  */
+	public int getC_DocType_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	@Deprecated(since="13") // use better methods with cache
 	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException
 	{
 		return (org.compiere.model.I_C_Order)MTable.get(getCtx(), org.compiere.model.I_C_Order.Table_ID)
@@ -385,6 +414,70 @@ public class X_STEV_VesselSchedule extends PO implements I_STEV_VesselSchedule, 
 	public Timestamp getETD()
 	{
 		return (Timestamp)get_Value(COLUMNNAME_ETD);
+	}
+
+	/** Set InaportnetPKKNo.
+		@param InaportnetPKKNo Nomor PKK (Pemberitahuan Kedatangan Kapal)
+	*/
+	public void setInaportnetPKKNo (String InaportnetPKKNo)
+	{
+		set_Value (COLUMNNAME_InaportnetPKKNo, InaportnetPKKNo);
+	}
+
+	/** Get InaportnetPKKNo.
+		@return Nomor PKK (Pemberitahuan Kedatangan Kapal)
+	  */
+	public String getInaportnetPKKNo()
+	{
+		return (String)get_Value(COLUMNNAME_InaportnetPKKNo);
+	}
+
+	/** Set InaportnetPPKBNo.
+		@param InaportnetPPKBNo Nomor PPKB (Permohonan Pelayanan Kapal &amp; Barang)
+	*/
+	public void setInaportnetPPKBNo (String InaportnetPPKBNo)
+	{
+		set_Value (COLUMNNAME_InaportnetPPKBNo, InaportnetPPKBNo);
+	}
+
+	/** Get InaportnetPPKBNo.
+		@return Nomor PPKB (Permohonan Pelayanan Kapal &amp; Barang)
+	  */
+	public String getInaportnetPPKBNo()
+	{
+		return (String)get_Value(COLUMNNAME_InaportnetPPKBNo);
+	}
+
+	/** Set InaportnetRKBMNo.
+		@param InaportnetRKBMNo Nomor RKBM (Rencana Kegiatan Bongkar Muat)
+	*/
+	public void setInaportnetRKBMNo (String InaportnetRKBMNo)
+	{
+		set_Value (COLUMNNAME_InaportnetRKBMNo, InaportnetRKBMNo);
+	}
+
+	/** Get InaportnetRKBMNo.
+		@return Nomor RKBM (Rencana Kegiatan Bongkar Muat)
+	  */
+	public String getInaportnetRKBMNo()
+	{
+		return (String)get_Value(COLUMNNAME_InaportnetRKBMNo);
+	}
+
+	/** Set InaportnetStatus.
+		@param InaportnetStatus Status approval dari sisi Inaportnet (terpisah dari DocStatus internal)
+	*/
+	public void setInaportnetStatus (String InaportnetStatus)
+	{
+		set_Value (COLUMNNAME_InaportnetStatus, InaportnetStatus);
+	}
+
+	/** Get InaportnetStatus.
+		@return Status approval dari sisi Inaportnet (terpisah dari DocStatus internal)
+	  */
+	public String getInaportnetStatus()
+	{
+		return (String)get_Value(COLUMNNAME_InaportnetStatus);
 	}
 
 	/** Set Processed.

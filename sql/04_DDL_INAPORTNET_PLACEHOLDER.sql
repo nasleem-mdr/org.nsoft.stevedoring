@@ -35,3 +35,14 @@ COMMENT ON COLUMN STEV_VesselSchedule.InaportnetStatus IS 'Status approval pihak
 -- Application Dictionary agar kolom-kolom baru terdaftar & ter-generate
 -- ke X_STEV_VesselSchedule.
 -- =====================================================================
+ALTER TABLE STEV_VesselSchedule ADD COLUMN C_DocType_ID NUMERIC(10);
+ALTER TABLE STEV_VesselSchedule ADD CONSTRAINT STEV_VS_DocType_FK
+    FOREIGN KEY (C_DocType_ID) REFERENCES C_DocType(C_DocType_ID);
+
+ALTER TABLE STEV_TallySheet ADD COLUMN C_DocType_ID NUMERIC(10);
+ALTER TABLE STEV_TallySheet ADD CONSTRAINT STEV_TS_DocType_FK
+    FOREIGN KEY (C_DocType_ID) REFERENCES C_DocType(C_DocType_ID);
+
+ALTER TABLE STEV_StatementOfFact ADD COLUMN C_DocType_ID NUMERIC(10);
+ALTER TABLE STEV_StatementOfFact ADD CONSTRAINT STEV_SoF_DocType_FK
+    FOREIGN KEY (C_DocType_ID) REFERENCES C_DocType(C_DocType_ID);

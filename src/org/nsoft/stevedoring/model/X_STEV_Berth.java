@@ -33,7 +33,7 @@ public class X_STEV_Berth extends PO implements I_STEV_Berth, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20260915L;
+	private static final long serialVersionUID = 20260916L;
 
     /** Standard Constructor */
     public X_STEV_Berth (Properties ctx, int STEV_Berth_ID, String trxName)

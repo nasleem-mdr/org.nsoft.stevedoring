@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for STEV_Vessel
+/** Generated Interface for STEV_TallySheet
  *  @author iDempiere (generated) 
  *  @version Release 13
  */
 @SuppressWarnings("all")
-public interface I_STEV_Vessel 
+public interface I_STEV_TallySheet 
 {
 
-    /** TableName=STEV_Vessel */
-    public static final String Table_Name = "STEV_Vessel";
+    /** TableName=STEV_TallySheet */
+    public static final String Table_Name = "STEV_TallySheet";
 
-    /** AD_Table_ID=1000025 */
+    /** AD_Table_ID=1000028 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,30 +64,21 @@ public interface I_STEV_Vessel
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name C_Country_ID */
-    public static final String COLUMNNAME_C_Country_ID = "C_Country_ID";
+    /** Column name C_DocType_ID */
+    public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
-	/** Set Flag Country.
-	  * Flag Country 
+	/** Set Document Type.
+	  * Document type or rules
 	  */
-	public void setC_Country_ID (int C_Country_ID);
+	public void setC_DocType_ID (int C_DocType_ID);
 
-	/** Get Flag Country.
-	  * Flag Country 
+	/** Get Document Type.
+	  * Document type or rules
 	  */
-	public int getC_Country_ID();
+	public int getC_DocType_ID();
 
 	@Deprecated(since="13") // use better methods with cache
-	public org.compiere.model.I_C_Country getC_Country() throws RuntimeException;
-
-    /** Column name CallSign */
-    public static final String COLUMNNAME_CallSign = "CallSign";
-
-	/** Set Call Sign	  */
-	public void setCallSign (String CallSign);
-
-	/** Get Call Sign	  */
-	public String getCallSign();
+	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -118,36 +109,31 @@ public interface I_STEV_Vessel
 	  */
 	public String getDescription();
 
-    /** Column name DraftMeter */
-    public static final String COLUMNNAME_DraftMeter = "DraftMeter";
+    /** Column name DocStatus */
+    public static final String COLUMNNAME_DocStatus = "DocStatus";
 
-	/** Set Draft Meter	  */
-	public void setDraftMeter (BigDecimal DraftMeter);
-
-	/** Get Draft Meter	  */
-	public BigDecimal getDraftMeter();
-
-    /** Column name GRT */
-    public static final String COLUMNNAME_GRT = "GRT";
-
-	/** Set GRT.
-	  * Gross Register Tonnage
+	/** Set Document Status.
+	  * The current status of the document
 	  */
-	public void setGRT (BigDecimal GRT);
+	public void setDocStatus (String DocStatus);
 
-	/** Get GRT.
-	  * Gross Register Tonnage
+	/** Get Document Status.
+	  * The current status of the document
 	  */
-	public BigDecimal getGRT();
+	public String getDocStatus();
 
-    /** Column name IMONumber */
-    public static final String COLUMNNAME_IMONumber = "IMONumber";
+    /** Column name DocumentNo */
+    public static final String COLUMNNAME_DocumentNo = "DocumentNo";
 
-	/** Set IMO Number	  */
-	public void setIMONumber (String IMONumber);
+	/** Set Document No.
+	  * Document sequence number of the document
+	  */
+	public void setDocumentNo (String DocumentNo);
 
-	/** Get IMO Number	  */
-	public String getIMONumber();
+	/** Get Document No.
+	  * Document sequence number of the document
+	  */
+	public String getDocumentNo();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -162,53 +148,44 @@ public interface I_STEV_Vessel
 	  */
 	public boolean isActive();
 
-    /** Column name LOA */
-    public static final String COLUMNNAME_LOA = "LOA";
+    /** Column name STEV_TallySheet_ID */
+    public static final String COLUMNNAME_STEV_TallySheet_ID = "STEV_TallySheet_ID";
 
-	/** Set LOA.
-	  * Length Overall (meter)
-	  */
-	public void setLOA (BigDecimal LOA);
+	/** Set STEV_TallySheet	  */
+	public void setSTEV_TallySheet_ID (int STEV_TallySheet_ID);
 
-	/** Get LOA.
-	  * Length Overall (meter)
-	  */
-	public BigDecimal getLOA();
+	/** Get STEV_TallySheet	  */
+	public int getSTEV_TallySheet_ID();
 
-    /** Column name NRT */
-    public static final String COLUMNNAME_NRT = "NRT";
+    /** Column name STEV_VesselSchedule_ID */
+    public static final String COLUMNNAME_STEV_VesselSchedule_ID = "STEV_VesselSchedule_ID";
 
-	/** Set NRT.
-	  * Net Register Tonnage
-	  */
-	public void setNRT (BigDecimal NRT);
+	/** Set STEV_VesselSchedule	  */
+	public void setSTEV_VesselSchedule_ID (int STEV_VesselSchedule_ID);
 
-	/** Get NRT.
-	  * Net Register Tonnage
-	  */
-	public BigDecimal getNRT();
+	/** Get STEV_VesselSchedule	  */
+	public int getSTEV_VesselSchedule_ID();
 
-    /** Column name Name */
-    public static final String COLUMNNAME_Name = "Name";
+	@Deprecated(since="13") // use better methods with cache
+	public I_STEV_VesselSchedule getSTEV_VesselSchedule() throws RuntimeException;
 
-	/** Set Name.
-	  * Alphanumeric identifier of the entity
-	  */
-	public void setName (String Name);
+    /** Column name ShiftNo */
+    public static final String COLUMNNAME_ShiftNo = "ShiftNo";
 
-	/** Get Name.
-	  * Alphanumeric identifier of the entity
-	  */
-	public String getName();
+	/** Set ShiftNo	  */
+	public void setShiftNo (String ShiftNo);
 
-    /** Column name STEV_Vessel_ID */
-    public static final String COLUMNNAME_STEV_Vessel_ID = "STEV_Vessel_ID";
+	/** Get ShiftNo	  */
+	public String getShiftNo();
 
-	/** Set STEV_Vessel	  */
-	public void setSTEV_Vessel_ID (int STEV_Vessel_ID);
+    /** Column name TallyDate */
+    public static final String COLUMNNAME_TallyDate = "TallyDate";
 
-	/** Get STEV_Vessel	  */
-	public int getSTEV_Vessel_ID();
+	/** Set TallyDate	  */
+	public void setTallyDate (Timestamp TallyDate);
+
+	/** Get TallyDate	  */
+	public Timestamp getTallyDate();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -225,13 +202,4 @@ public interface I_STEV_Vessel
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
-
-    /** Column name VesselType */
-    public static final String COLUMNNAME_VesselType = "VesselType";
-
-	/** Set Vessel Type	  */
-	public void setVesselType (String VesselType);
-
-	/** Get Vessel Type	  */
-	public String getVesselType();
 }

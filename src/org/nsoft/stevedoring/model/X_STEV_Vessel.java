@@ -33,7 +33,7 @@ public class X_STEV_Vessel extends PO implements I_STEV_Vessel, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20260915L;
+	private static final long serialVersionUID = 20260916L;
 
     /** Standard Constructor */
     public X_STEV_Vessel (Properties ctx, int STEV_Vessel_ID, String trxName)
@@ -222,20 +222,20 @@ public class X_STEV_Vessel extends PO implements I_STEV_Vessel, I_Persistent
 	/** Set LOA.
 		@param LOA Length Overall (meter)
 	*/
-	public void setLOA (int LOA)
+	public void setLOA (BigDecimal LOA)
 	{
-		set_Value (COLUMNNAME_LOA, Integer.valueOf(LOA));
+		set_Value (COLUMNNAME_LOA, LOA);
 	}
 
 	/** Get LOA.
 		@return Length Overall (meter)
 	  */
-	public int getLOA()
+	public BigDecimal getLOA()
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_LOA);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LOA);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set NRT.

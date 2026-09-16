@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for STEV_Vessel
+/** Generated Interface for STEV_TallyLine
  *  @author iDempiere (generated) 
  *  @version Release 13
  */
 @SuppressWarnings("all")
-public interface I_STEV_Vessel 
+public interface I_STEV_TallyLine 
 {
 
-    /** TableName=STEV_Vessel */
-    public static final String Table_Name = "STEV_Vessel";
+    /** TableName=STEV_TallyLine */
+    public static final String Table_Name = "STEV_TallyLine";
 
-    /** AD_Table_ID=1000025 */
+    /** AD_Table_ID=1000029 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,30 +64,21 @@ public interface I_STEV_Vessel
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name C_Country_ID */
-    public static final String COLUMNNAME_C_Country_ID = "C_Country_ID";
+    /** Column name C_UOM_ID */
+    public static final String COLUMNNAME_C_UOM_ID = "C_UOM_ID";
 
-	/** Set Flag Country.
-	  * Flag Country 
+	/** Set UOM.
+	  * Unit of Measure
 	  */
-	public void setC_Country_ID (int C_Country_ID);
+	public void setC_UOM_ID (int C_UOM_ID);
 
-	/** Get Flag Country.
-	  * Flag Country 
+	/** Get UOM.
+	  * Unit of Measure
 	  */
-	public int getC_Country_ID();
+	public int getC_UOM_ID();
 
 	@Deprecated(since="13") // use better methods with cache
-	public org.compiere.model.I_C_Country getC_Country() throws RuntimeException;
-
-    /** Column name CallSign */
-    public static final String COLUMNNAME_CallSign = "CallSign";
-
-	/** Set Call Sign	  */
-	public void setCallSign (String CallSign);
-
-	/** Get Call Sign	  */
-	public String getCallSign();
+	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -118,36 +109,14 @@ public interface I_STEV_Vessel
 	  */
 	public String getDescription();
 
-    /** Column name DraftMeter */
-    public static final String COLUMNNAME_DraftMeter = "DraftMeter";
+    /** Column name HatchNo */
+    public static final String COLUMNNAME_HatchNo = "HatchNo";
 
-	/** Set Draft Meter	  */
-	public void setDraftMeter (BigDecimal DraftMeter);
+	/** Set HatchNo	  */
+	public void setHatchNo (String HatchNo);
 
-	/** Get Draft Meter	  */
-	public BigDecimal getDraftMeter();
-
-    /** Column name GRT */
-    public static final String COLUMNNAME_GRT = "GRT";
-
-	/** Set GRT.
-	  * Gross Register Tonnage
-	  */
-	public void setGRT (BigDecimal GRT);
-
-	/** Get GRT.
-	  * Gross Register Tonnage
-	  */
-	public BigDecimal getGRT();
-
-    /** Column name IMONumber */
-    public static final String COLUMNNAME_IMONumber = "IMONumber";
-
-	/** Set IMO Number	  */
-	public void setIMONumber (String IMONumber);
-
-	/** Get IMO Number	  */
-	public String getIMONumber();
+	/** Get HatchNo	  */
+	public String getHatchNo();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -162,53 +131,98 @@ public interface I_STEV_Vessel
 	  */
 	public boolean isActive();
 
-    /** Column name LOA */
-    public static final String COLUMNNAME_LOA = "LOA";
+    /** Column name Line */
+    public static final String COLUMNNAME_Line = "Line";
 
-	/** Set LOA.
-	  * Length Overall (meter)
+	/** Set Line No.
+	  * Unique line for this document
 	  */
-	public void setLOA (BigDecimal LOA);
+	public void setLine (int Line);
 
-	/** Get LOA.
-	  * Length Overall (meter)
+	/** Get Line No.
+	  * Unique line for this document
 	  */
-	public BigDecimal getLOA();
+	public int getLine();
 
-    /** Column name NRT */
-    public static final String COLUMNNAME_NRT = "NRT";
+    /** Column name M_Product_ID */
+    public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
-	/** Set NRT.
-	  * Net Register Tonnage
+	/** Set Product.
+	  * Product, Service, Item
 	  */
-	public void setNRT (BigDecimal NRT);
+	public void setM_Product_ID (int M_Product_ID);
 
-	/** Get NRT.
-	  * Net Register Tonnage
+	/** Get Product.
+	  * Product, Service, Item
 	  */
-	public BigDecimal getNRT();
+	public int getM_Product_ID();
 
-    /** Column name Name */
-    public static final String COLUMNNAME_Name = "Name";
+	@Deprecated(since="13") // use better methods with cache
+	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
 
-	/** Set Name.
-	  * Alphanumeric identifier of the entity
+    /** Column name QtyMoved */
+    public static final String COLUMNNAME_QtyMoved = "QtyMoved";
+
+	/** Set QtyMoved	  */
+	public void setQtyMoved (BigDecimal QtyMoved);
+
+	/** Get QtyMoved	  */
+	public BigDecimal getQtyMoved();
+
+    /** Column name STEV_TallyLine_ID */
+    public static final String COLUMNNAME_STEV_TallyLine_ID = "STEV_TallyLine_ID";
+
+	/** Set STEV_TallyLine	  */
+	public void setSTEV_TallyLine_ID (int STEV_TallyLine_ID);
+
+	/** Get STEV_TallyLine	  */
+	public int getSTEV_TallyLine_ID();
+
+    /** Column name STEV_TallySheet_ID */
+    public static final String COLUMNNAME_STEV_TallySheet_ID = "STEV_TallySheet_ID";
+
+	/** Set STEV_TallySheet	  */
+	public void setSTEV_TallySheet_ID (int STEV_TallySheet_ID);
+
+	/** Get STEV_TallySheet	  */
+	public int getSTEV_TallySheet_ID();
+
+	@Deprecated(since="13") // use better methods with cache
+	public I_STEV_TallySheet getSTEV_TallySheet() throws RuntimeException;
+
+    /** Column name S_Resource_ID */
+    public static final String COLUMNNAME_S_Resource_ID = "S_Resource_ID";
+
+	/** Set Resource.
+	  * Resource
 	  */
-	public void setName (String Name);
+	public void setS_Resource_ID (int S_Resource_ID);
 
-	/** Get Name.
-	  * Alphanumeric identifier of the entity
+	/** Get Resource.
+	  * Resource
 	  */
-	public String getName();
+	public int getS_Resource_ID();
 
-    /** Column name STEV_Vessel_ID */
-    public static final String COLUMNNAME_STEV_Vessel_ID = "STEV_Vessel_ID";
+	@Deprecated(since="13") // use better methods with cache
+	public org.compiere.model.I_S_Resource getS_Resource() throws RuntimeException;
 
-	/** Set STEV_Vessel	  */
-	public void setSTEV_Vessel_ID (int STEV_Vessel_ID);
+    /** Column name TimeEnd */
+    public static final String COLUMNNAME_TimeEnd = "TimeEnd";
 
-	/** Get STEV_Vessel	  */
-	public int getSTEV_Vessel_ID();
+	/** Set TimeEnd	  */
+	public void setTimeEnd (Timestamp TimeEnd);
+
+	/** Get TimeEnd	  */
+	public Timestamp getTimeEnd();
+
+    /** Column name TimeStart */
+    public static final String COLUMNNAME_TimeStart = "TimeStart";
+
+	/** Set TimeStart	  */
+	public void setTimeStart (Timestamp TimeStart);
+
+	/** Get TimeStart	  */
+	public Timestamp getTimeStart();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -225,13 +239,4 @@ public interface I_STEV_Vessel
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
-
-    /** Column name VesselType */
-    public static final String COLUMNNAME_VesselType = "VesselType";
-
-	/** Set Vessel Type	  */
-	public void setVesselType (String VesselType);
-
-	/** Get Vessel Type	  */
-	public String getVesselType();
 }

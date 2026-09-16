@@ -15,7 +15,7 @@ INSERT INTO AD_Process
     (AD_Process_ID, AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
      Value, Name, Description, Classname, AccessLevel, EntityType, IsReport)
 VALUES
-    (nextval('AD_Process_Sysconfig_SEQ' /* ganti ke sequence AD_Process yang sesuai di instance Anda, mis. AD_Process_ID_SEQ*/),
+    (1000004,
      0, 0, 'Y', now(), 0, now(), 0,
      'STEV_RecordVesselArrival', 'Kapal Tiba (Record Vessel Arrival)',
      'Mencatat ATA (Actual Time of Arrival) dengan waktu klik sebenarnya',
@@ -25,7 +25,7 @@ INSERT INTO AD_Process
     (AD_Process_ID, AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
      Value, Name, Description, Classname, AccessLevel, EntityType, IsReport)
 VALUES
-    (nextval('AD_Process_Sysconfig_SEQ'),
+    (1000005,
      0, 0, 'Y', now(), 0, now(), 0,
      'STEV_RecordBerthing', 'Mulai Sandar (Record Berthing)',
      'Mencatat ATB (Actual Time of Berthing) dengan waktu klik sebenarnya; butuh ATA terisi lebih dulu',
@@ -35,7 +35,7 @@ INSERT INTO AD_Process
     (AD_Process_ID, AD_Client_ID, AD_Org_ID, IsActive, Created, CreatedBy, Updated, UpdatedBy,
      Value, Name, Description, Classname, AccessLevel, EntityType, IsReport)
 VALUES
-    (nextval('AD_Process_Sysconfig_SEQ'),
+    (1000006,
      0, 0, 'Y', now(), 0, now(), 0,
      'STEV_RecordDeparture', 'Kapal Berangkat (Record Departure)',
      'Mencatat ATD (Actual Time of Departure) dengan waktu klik sebenarnya; butuh ATB terisi lebih dulu',

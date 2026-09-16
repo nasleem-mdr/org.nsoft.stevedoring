@@ -15,4 +15,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.nsoft.stevedoring.model,
  org.nsoft.stevedoring.service,
  org.nsoft.stevedoring.validator,
+ org.nsoft.stevedoring.process,
  org.nsoft.stevedoring.base

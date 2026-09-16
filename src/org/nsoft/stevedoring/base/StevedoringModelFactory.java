@@ -8,6 +8,7 @@ import org.adempiere.base.IModelFactory;
 import org.compiere.model.PO;
 import org.compiere.util.Env;
 import org.nsoft.stevedoring.model.MStevBerth;
+import org.nsoft.stevedoring.model.MStevEquipmentDetail;
 import org.nsoft.stevedoring.model.MStevStatementOfFact;
 import org.nsoft.stevedoring.model.MStevTallyLine;
 import org.nsoft.stevedoring.model.MStevTallySheet;
@@ -33,6 +34,8 @@ public class StevedoringModelFactory implements IModelFactory
                 return MStevVessel.class;
             case MStevBerth.Table_Name:
                 return MStevBerth.class;
+            case MStevEquipmentDetail.Table_Name:
+                return MStevEquipmentDetail.class;
             case MStevVesselSchedule.Table_Name:
                 return MStevVesselSchedule.class;
             case MStevTallySheet.Table_Name:

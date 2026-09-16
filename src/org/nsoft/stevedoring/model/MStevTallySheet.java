@@ -16,7 +16,17 @@ public class MStevTallySheet extends X_STEV_TallySheet
 
     public MStevTallySheet(Properties ctx, int STEV_TallySheet_ID, String trxName)
     {
-        super(ctx, STEV_TallySheet_ID, trxName);
+        // Cast null ke (String) agar Java tahu konstruktor mana yang dipanggil
+        super(ctx, (String) null, trxName);
+        if (STEV_TallySheet_ID > 0)
+            set_ValueNoCheck(COLUMNNAME_STEV_TallySheet_ID, Integer.valueOf(STEV_TallySheet_ID));
+        if (STEV_TallySheet_ID > 0)
+            load(trxName);
+    }
+
+    public MStevTallySheet(Properties ctx, String STEV_TallySheet_UU, String trxName)
+    {
+        super(ctx, STEV_TallySheet_UU, trxName);
     }
 
     public MStevTallySheet(Properties ctx, ResultSet rs, String trxName)

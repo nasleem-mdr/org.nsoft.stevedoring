@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for STEV_VesselSchedule
+/** Generated Interface for STEV_StatementOfFact
  *  @author iDempiere (generated) 
  *  @version Release 13
  */
 @SuppressWarnings("all")
-public interface I_STEV_VesselSchedule 
+public interface I_STEV_StatementOfFact 
 {
 
-    /** TableName=STEV_VesselSchedule */
-    public static final String Table_Name = "STEV_VesselSchedule";
+    /** TableName=STEV_StatementOfFact */
+    public static final String Table_Name = "STEV_StatementOfFact";
 
-    /** AD_Table_ID=1000027 */
+    /** AD_Table_ID=1000030 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,70 +64,6 @@ public interface I_STEV_VesselSchedule
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name ATA */
-    public static final String COLUMNNAME_ATA = "ATA";
-
-	/** Set ATA.
-	  * Actual Time of Arrival
-	  */
-	public void setATA (Timestamp ATA);
-
-	/** Get ATA.
-	  * Actual Time of Arrival
-	  */
-	public Timestamp getATA();
-
-    /** Column name ATB */
-    public static final String COLUMNNAME_ATB = "ATB";
-
-	/** Set ATB.
-	  * Actual Time of Berthing
-	  */
-	public void setATB (Timestamp ATB);
-
-	/** Get ATB.
-	  * Actual Time of Berthing
-	  */
-	public Timestamp getATB();
-
-    /** Column name ATD */
-    public static final String COLUMNNAME_ATD = "ATD";
-
-	/** Set ATD.
-	  * Actual Time of Departure
-	  */
-	public void setATD (Timestamp ATD);
-
-	/** Get ATD.
-	  * Actual Time of Departure
-	  */
-	public Timestamp getATD();
-
-    /** Column name ActivityType */
-    public static final String COLUMNNAME_ActivityType = "ActivityType";
-
-	/** Set ActivityType	  */
-	public void setActivityType (String ActivityType);
-
-	/** Get ActivityType	  */
-	public String getActivityType();
-
-    /** Column name C_BPartner_ID */
-    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
-
-	/** Set Business Partner.
-	  * Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID);
-
-	/** Get Business Partner.
-	  * Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID();
-
-	@Deprecated(since="13") // use better methods with cache
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
-
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
@@ -144,21 +80,21 @@ public interface I_STEV_VesselSchedule
 	@Deprecated(since="13") // use better methods with cache
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
 
-    /** Column name C_Order_ID */
-    public static final String COLUMNNAME_C_Order_ID = "C_Order_ID";
+    /** Column name C_UOM_ID */
+    public static final String COLUMNNAME_C_UOM_ID = "C_UOM_ID";
 
-	/** Set Order.
-	  * Order
+	/** Set UOM.
+	  * Unit of Measure
 	  */
-	public void setC_Order_ID (int C_Order_ID);
+	public void setC_UOM_ID (int C_UOM_ID);
 
-	/** Get Order.
-	  * Order
+	/** Get UOM.
+	  * Unit of Measure
 	  */
-	public int getC_Order_ID();
+	public int getC_UOM_ID();
 
 	@Deprecated(since="13") // use better methods with cache
-	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException;
+	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException;
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -189,6 +125,28 @@ public interface I_STEV_VesselSchedule
 	  */
 	public String getDescription();
 
+    /** Column name DigitalSignature */
+    public static final String COLUMNNAME_DigitalSignature = "DigitalSignature";
+
+	/** Set DigitalSignature	  */
+	public void setDigitalSignature (String DigitalSignature);
+
+	/** Get DigitalSignature	  */
+	public String getDigitalSignature();
+
+    /** Column name DocAction */
+    public static final String COLUMNNAME_DocAction = "DocAction";
+
+	/** Set Document Action.
+	  * The targeted status of the document
+	  */
+	public void setDocAction (String DocAction);
+
+	/** Get Document Action.
+	  * The targeted status of the document
+	  */
+	public String getDocAction();
+
     /** Column name DocStatus */
     public static final String COLUMNNAME_DocStatus = "DocStatus";
 
@@ -215,98 +173,14 @@ public interface I_STEV_VesselSchedule
 	  */
 	public String getDocumentNo();
 
-    /** Column name ETA */
-    public static final String COLUMNNAME_ETA = "ETA";
+    /** Column name IdleTimeReason */
+    public static final String COLUMNNAME_IdleTimeReason = "IdleTimeReason";
 
-	/** Set ETA.
-	  * Estimated Time of Arrival
-	  */
-	public void setETA (Timestamp ETA);
+	/** Set IdleTimeReason	  */
+	public void setIdleTimeReason (String IdleTimeReason);
 
-	/** Get ETA.
-	  * Estimated Time of Arrival
-	  */
-	public Timestamp getETA();
-
-    /** Column name ETB */
-    public static final String COLUMNNAME_ETB = "ETB";
-
-	/** Set ETB.
-	  * Estimated Time of Berthing
-	  */
-	public void setETB (Timestamp ETB);
-
-	/** Get ETB.
-	  * Estimated Time of Berthing
-	  */
-	public Timestamp getETB();
-
-    /** Column name ETD */
-    public static final String COLUMNNAME_ETD = "ETD";
-
-	/** Set ETD.
-	  * Estimated Time of Departure 
-	  */
-	public void setETD (Timestamp ETD);
-
-	/** Get ETD.
-	  * Estimated Time of Departure 
-	  */
-	public Timestamp getETD();
-
-    /** Column name InaportnetPKKNo */
-    public static final String COLUMNNAME_InaportnetPKKNo = "InaportnetPKKNo";
-
-	/** Set InaportnetPKKNo.
-	  * Nomor PKK (Pemberitahuan Kedatangan Kapal)
-	  */
-	public void setInaportnetPKKNo (String InaportnetPKKNo);
-
-	/** Get InaportnetPKKNo.
-	  * Nomor PKK (Pemberitahuan Kedatangan Kapal)
-	  */
-	public String getInaportnetPKKNo();
-
-    /** Column name InaportnetPPKBNo */
-    public static final String COLUMNNAME_InaportnetPPKBNo = "InaportnetPPKBNo";
-
-	/** Set InaportnetPPKBNo.
-	  * Nomor PPKB (Permohonan Pelayanan Kapal &amp;
- Barang)
-	  */
-	public void setInaportnetPPKBNo (String InaportnetPPKBNo);
-
-	/** Get InaportnetPPKBNo.
-	  * Nomor PPKB (Permohonan Pelayanan Kapal &amp;
- Barang)
-	  */
-	public String getInaportnetPPKBNo();
-
-    /** Column name InaportnetRKBMNo */
-    public static final String COLUMNNAME_InaportnetRKBMNo = "InaportnetRKBMNo";
-
-	/** Set InaportnetRKBMNo.
-	  * Nomor RKBM (Rencana Kegiatan Bongkar Muat)
-	  */
-	public void setInaportnetRKBMNo (String InaportnetRKBMNo);
-
-	/** Get InaportnetRKBMNo.
-	  * Nomor RKBM (Rencana Kegiatan Bongkar Muat)
-	  */
-	public String getInaportnetRKBMNo();
-
-    /** Column name InaportnetStatus */
-    public static final String COLUMNNAME_InaportnetStatus = "InaportnetStatus";
-
-	/** Set InaportnetStatus.
-	  * Status approval dari sisi Inaportnet (terpisah dari DocStatus internal)
-	  */
-	public void setInaportnetStatus (String InaportnetStatus);
-
-	/** Get InaportnetStatus.
-	  * Status approval dari sisi Inaportnet (terpisah dari DocStatus internal)
-	  */
-	public String getInaportnetStatus();
+	/** Get IdleTimeReason	  */
+	public String getIdleTimeReason();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -321,6 +195,28 @@ public interface I_STEV_VesselSchedule
 	  */
 	public boolean isActive();
 
+    /** Column name IsApproved */
+    public static final String COLUMNNAME_IsApproved = "IsApproved";
+
+	/** Set Approved.
+	  * Indicates if this document requires approval
+	  */
+	public void setIsApproved (boolean IsApproved);
+
+	/** Get Approved.
+	  * Indicates if this document requires approval
+	  */
+	public boolean isApproved();
+
+    /** Column name MasterName */
+    public static final String COLUMNNAME_MasterName = "MasterName";
+
+	/** Set MasterName	  */
+	public void setMasterName (String MasterName);
+
+	/** Get MasterName	  */
+	public String getMasterName();
+
     /** Column name Processed */
     public static final String COLUMNNAME_Processed = "Processed";
 
@@ -334,17 +230,23 @@ public interface I_STEV_VesselSchedule
 	  */
 	public boolean isProcessed();
 
-    /** Column name STEV_Berth_ID */
-    public static final String COLUMNNAME_STEV_Berth_ID = "STEV_Berth_ID";
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
 
-	/** Set STEV_Berth	  */
-	public void setSTEV_Berth_ID (int STEV_Berth_ID);
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
 
-	/** Get STEV_Berth	  */
-	public int getSTEV_Berth_ID();
+	/** Get Process Now	  */
+	public boolean isProcessing();
 
-	@Deprecated(since="13") // use better methods with cache
-	public I_STEV_Berth getSTEV_Berth() throws RuntimeException;
+    /** Column name STEV_StatementOfFact_ID */
+    public static final String COLUMNNAME_STEV_StatementOfFact_ID = "STEV_StatementOfFact_ID";
+
+	/** Set STEV_StatementOfFact	  */
+	public void setSTEV_StatementOfFact_ID (int STEV_StatementOfFact_ID);
+
+	/** Get STEV_StatementOfFact	  */
+	public int getSTEV_StatementOfFact_ID();
 
     /** Column name STEV_VesselSchedule_ID */
     public static final String COLUMNNAME_STEV_VesselSchedule_ID = "STEV_VesselSchedule_ID";
@@ -355,17 +257,35 @@ public interface I_STEV_VesselSchedule
 	/** Get STEV_VesselSchedule	  */
 	public int getSTEV_VesselSchedule_ID();
 
-    /** Column name STEV_Vessel_ID */
-    public static final String COLUMNNAME_STEV_Vessel_ID = "STEV_Vessel_ID";
-
-	/** Set STEV_Vessel	  */
-	public void setSTEV_Vessel_ID (int STEV_Vessel_ID);
-
-	/** Get STEV_Vessel	  */
-	public int getSTEV_Vessel_ID();
-
 	@Deprecated(since="13") // use better methods with cache
-	public I_STEV_Vessel getSTEV_Vessel() throws RuntimeException;
+	public I_STEV_VesselSchedule getSTEV_VesselSchedule() throws RuntimeException;
+
+    /** Column name SignedDate */
+    public static final String COLUMNNAME_SignedDate = "SignedDate";
+
+	/** Set SignedDate	  */
+	public void setSignedDate (Timestamp SignedDate);
+
+	/** Get SignedDate	  */
+	public Timestamp getSignedDate();
+
+    /** Column name TotalIdleTimeMinutes */
+    public static final String COLUMNNAME_TotalIdleTimeMinutes = "TotalIdleTimeMinutes";
+
+	/** Set TotalIdleTimeMinutes	  */
+	public void setTotalIdleTimeMinutes (int TotalIdleTimeMinutes);
+
+	/** Get TotalIdleTimeMinutes	  */
+	public int getTotalIdleTimeMinutes();
+
+    /** Column name TotalQtyRealized */
+    public static final String COLUMNNAME_TotalQtyRealized = "TotalQtyRealized";
+
+	/** Set TotalQtyRealized	  */
+	public void setTotalQtyRealized (BigDecimal TotalQtyRealized);
+
+	/** Get TotalQtyRealized	  */
+	public BigDecimal getTotalQtyRealized();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
