@@ -34,7 +34,7 @@ CREATE TABLE STEV_Vessel
     Name                VARCHAR(120)  NOT NULL,          -- Nama Kapal
     CallSign            VARCHAR(20),
     IMONumber           VARCHAR(20),
-    FlagCountry         VARCHAR(60),
+    C_Country_ID        NUMERIC(10),
     VesselType          VARCHAR(30),                      -- Bulk Carrier, Tanker, Container, dll
     LOA                 NUMERIC(10,2),                     -- Length Overall (meter)
     GRT                 NUMERIC(12,2),                     -- Gross Register Tonnage
@@ -60,13 +60,18 @@ CREATE TABLE STEV_VesselSchedule
     Updated                 TIMESTAMP     DEFAULT now() NOT NULL,
     UpdatedBy               NUMERIC(10)   NOT NULL,
 
+    InaportnetPKKNo         VARCHAR(40),  -- Nomor PKK (Pemberitahuan Kedatangan Kapal)
+    InaportnetRKBMNo        VARCHAR(40),  -- Nomor RKBM (Rencana Kegiatan Bongkar Muat)
+    InaportnetPPKBNo        VARCHAR(40),  -- Nomor PPKB (Permohonan Pelayanan Kapal & Barang)
+    InaportnetStatus        VARCHAR(30),  -- Status approval dari sisi Inaportnet (terpisah dari DocStatus internal)
+
     DocumentNo              VARCHAR(30)   NOT NULL,
     C_Order_ID              NUMERIC(10)   NOT NULL,        -- FK -> SPK (Sales Order)
     STEV_Vessel_ID          NUMERIC(10)   NOT NULL,        -- FK -> Master Kapal
     C_BPartner_ID           NUMERIC(10)   NOT NULL,        -- Agen Shipping / Customer
 
     ActivityType            VARCHAR(20)   NOT NULL,        -- Discharge / Loading
-    BerthLocation           VARCHAR(60),
+    STEV_Berth_ID           NUMERIC(10),
 
     ETA                     TIMESTAMP,
     ETB                     TIMESTAMP,
@@ -82,9 +87,15 @@ CREATE TABLE STEV_VesselSchedule
     CONSTRAINT STEV_VesselSchedule_PK PRIMARY KEY (STEV_VesselSchedule_ID),
     CONSTRAINT STEV_VesSched_Order_FK FOREIGN KEY (C_Order_ID) REFERENCES C_Order(C_Order_ID),
     CONSTRAINT STEV_VesSched_Vessel_FK FOREIGN KEY (STEV_Vessel_ID) REFERENCES STEV_Vessel(STEV_Vessel_ID),
-    CONSTRAINT STEV_VesSched_BP_FK FOREIGN KEY (C_BPartner_ID) REFERENCES C_BPartner(C_BPartner_ID)
+    CONSTRAINT STEV_VesSched_BP_FK FOREIGN KEY (C_BPartner_ID) REFERENCES C_BPartner(C_BPartner_ID),
+    CONSTRAINT STEV_VesSched_Berth_FK FOREIGN KEY (STEV_Berth_ID) REFERENCES STEV_Berth(STEV_Berth_ID)
+
 );
 COMMENT ON TABLE STEV_VesselSchedule IS 'Jadwal & realisasi sandar kapal, terhubung ke SPK (C_Order)';
+COMMENT ON COLUMN STEV_VesselSchedule.InaportnetPKKNo  IS 'Nomor referensi PKK dari sistem Inaportnet — placeholder, diisi manual sampai integrasi otomatis tersedia';
+COMMENT ON COLUMN STEV_VesselSchedule.InaportnetRKBMNo IS 'Nomor referensi RKBM dari sistem Inaportnet — placeholder, diisi manual sampai integrasi otomatis tersedia';
+COMMENT ON COLUMN STEV_VesselSchedule.InaportnetPPKBNo IS 'Nomor referensi PPKB dari sistem Inaportnet — placeholder, diisi manual sampai integrasi otomatis tersedia';
+COMMENT ON COLUMN STEV_VesselSchedule.InaportnetStatus IS 'Status approval pihak Otoritas Pelabuhan/Syahbandar di Inaportnet (mis. Diajukan/Disetujui/Ditolak) — bukan DocStatus internal iDempiere';
 
 -- ---------------------------------------------------------------------
 -- C. TALLY SHEET & TALLY LINE (Lapangan) — referensi ke Vessel Schedule
