@@ -3,21 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!--
-        Build Tycho standar untuk plugin OSGi iDempiere.
-        Disesuaikan dengan pola build plugin org.nsoft lain (autoprice,
-        workflow.activities, wf.visualizer) — jalankan sebagai module di
-        bawah root aggregator iDempiere ("mvn -f pom.xml clean verify"),
-        atau bisa juga di-build berdiri sendiri jika parent tidak dipakai
-        (tinggal hapus tag <parent> dan lengkapi <repositories> p2 di bawah).
-    -->
     <parent>
-        <groupId>org.idempiere</groupId>
-        <artifactId>org.idempiere.parent</artifactId>
-        <version>13.0.0-SNAPSHOT</version>
-        <relativePath>../org.idempiere.parent</relativePath>
-    </parent>
+		<groupId>org.idempiere</groupId>
+		<artifactId>org.idempiere.parent</artifactId>
+		<version>${revision}</version>
+		<relativePath>../idempiere/org.idempiere.parent/pom.xml</relativePath>
+	</parent>
 
     <groupId>org.nsoft</groupId>
     <artifactId>org.nsoft.stevedoring</artifactId>
