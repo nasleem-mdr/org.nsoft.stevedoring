@@ -30,11 +30,10 @@ import java.util.Properties;
 
 /**
  * Master data kapal.
- * NOTE: X_STEV_Vessel adalah superclass hasil "Generate Model" iDempiere
- * setelah AD_Table STEV_Vessel disinkronkan dari tabel fisik (lihat
- * sql/01_DDL_STEV_TABLES.sql). Kelas ini hanya menambahkan helper/validasi
- * ringan di atasnya.
- */
+ * NOTE: X_STEV_Vessel is superclass "Generate Model" reuslt from iDempiere
+ * after AD_Table STEV_Vessel synchronize by physical table(see sql/01_DDL_STEV_TABLES.sql). 
+ * This class only add easy helper/validation
+*/
 public class MStevVessel extends X_STEV_Vessel
 {
     private static final long serialVersionUID = 1L;
@@ -54,7 +53,7 @@ public class MStevVessel extends X_STEV_Vessel
     {
         if (getLOA() != null && getLOA().signum() < 0)
         {
-            log.saveError("Error", "LOA tidak boleh negatif");
+            log.saveError("Error", "LOA cannot be negative");
             return false;
         }
         return true;
