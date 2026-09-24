@@ -1,3 +1,27 @@
+/***********************************************************************
+ * This file is part of iDempiere ERP Open Source                      *
+ * http://www.idempiere.org                                            *
+ *                                                                     *
+ * Copyright (C) Contributors                                          *
+ *                                                                     *
+ * This program is free software; you can redistribute it and/or       *
+ * modify it under the terms of the GNU General Public License         *
+ * as published by the Free Software Foundation; either version 2      *
+ * of the License, or (at your option) any later version.              *
+ *                                                                     *
+ * This program is distributed in the hope that it will be useful,     *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of      *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the        *
+ * GNU General Public License for more details.                        *
+ *                                                                     *
+ * You should have received a copy of the GNU General Public License   *
+ * along with this program; if not, write to the Free Software         *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,          *
+ * MA 02110-1301, USA.                                                 *
+ *                                                                     *
+ * Contributors:                                                       *
+ * - Nasleem - NSoft - IDempiere                                       *
+ **********************************************************************/
 package org.nsoft.stevedoring.model;
 
 import java.sql.ResultSet;
@@ -30,11 +54,11 @@ public class MStevBerth extends X_STEV_Berth
     }
 
     /**
-     * Bandingkan kapasitas dermaga ini terhadap kapal tertentu (panjang
-     * LOA vs LengthMeter, Draft vs DepthMeter). Mengembalikan teks
-     * peringatan berisi perbandingan angka kalau ADA potensi masalah,
-     * atau null kalau aman / data tidak lengkap (tidak diblokir otomatis
-     * saat data belum lengkap, supaya tidak menghalangi input awal).
+     * Compares this berth's capacity against a specific vessel (LOA vs. LengthMeter,
+     * Draft vs. DepthMeter). Returns a warning message containing the numerical
+     * comparison if there is a potential issue, or null if safe or data is incomplete
+     * (automatic blocking does not occur when data is incomplete, so as not to
+     * hinder initial data entry).
      */
     public String getCapacityWarning(MStevVessel vessel)
     {
