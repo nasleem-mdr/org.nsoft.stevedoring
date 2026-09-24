@@ -8,17 +8,17 @@ import org.nsoft.stevedoring.form.STEV_SignaturePadForm;
 import org.nsoft.stevedoring.model.MStevStatementOfFact;
 
 /**
- * Tombol "Tanda Tangan Digital" pada Tab STEV_StatementOfFact — membuka
- * STEV_SignaturePadForm dengan Document No SoF yang sedang dibuka
- * SUDAH otomatis disiapkan (lewat Env context session), supaya user
- * tidak perlu ketik ulang manual.
+ * The "Digital Signature" button on the STEV_StatementOfFact tab opens
+ * STEV_SignaturePadForm with the currently open SoF Document No.
+ * This is automatically pre-populated (via the Env context session)
+ * so the user does not need to type it in manually.
  *
- * CATATAN VERIFIKASI (beda dari process lain di plugin ini yang sudah
- * teruji): memanggil ADForm.openForm() dari DALAM doIt() sebuah Process
- * (bukan dari klik menu langsung) belum pernah ditest — kalau tidak
- * langsung render/muncul error, kemungkinan perlu penyesuaian
- * threading (mis. dibungkus Executions.schedule()). Kabari errornya
- * kalau ada, supaya bisa disesuaikan.
+ * VERIFICATION NOTE (differs from other proven processes in this plugin):
+ * Calling ADForm.openForm() from *within* a Process's doIt() method
+ * (rather than directly from a menu click) has not yet been tested.
+ * If it fails to render or throws an error, threading adjustments
+ * (e.g., wrapping it in Executions.schedule()) may be required.
+ * Please report any errors so adjustments can be made.
  */
 public class STEV_OpenSignaturePad extends SvrProcess
 {
