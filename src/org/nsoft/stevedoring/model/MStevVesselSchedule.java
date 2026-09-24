@@ -32,8 +32,8 @@ import java.util.Properties;
 import org.compiere.model.MOrder;
 
 /**
- * Jadwal & realisasi sandar kapal (ETA/ETB/ETD, ATA/ATB/ATD), terhubung ke
- * SPK (C_Order) sebagai kontrak awal.
+ * Vessel berthing schedules and actuals (ETA/ETB/ETD, ATA/ATB/ATD), linked to
+ * the SPK (C_Order) as the initial contract.
  */
 public class MStevVesselSchedule extends X_STEV_VesselSchedule
 {
@@ -54,20 +54,24 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
         super(ctx, rs, trxName);
     }
 
-    /** SPK (Sales Order/Surat Perintah Kerja) yang menjadi kontrak awal */
+    /** SPK (Sales Order/Work Order) which is the initial contract */
     public MOrder getOrder()
     {
         return new MOrder(getCtx(), getC_Order_ID(), get_TrxName());
     }
 
-    /** Dermaga tempat kapal sandar (STEV_Berth_ID, menggantikan free-text BerthLocation) */
     public MStevBerth getBerth()
     {
         int berthId = get_ValueAsInt("STEV_Berth_ID");
         return berthId > 0 ? new MStevBerth(getCtx(), berthId, get_TrxName()) : null;
     }
 
-    /** Menandai kapal sudah benar-benar sandar (ATB terisi) */
+    public MStevVessel getVessel()
+    {
+        int vesselId = getSTEV_Vessel_ID();
+        return vesselId > 0 ? new MStevVessel(getCtx(), vesselId, get_TrxName()) : null;
+    }
+
     public boolean isVesselBerthed()
     {
         return getATB() != null;
@@ -76,45 +80,67 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
     @Override
     protected boolean beforeSave(boolean newRecord)
     {
-        // --- Validasi urutan waktu rencana (Estimated): ETA -> ETB -> ETD ---
-        String err = validateSequence(getETA(), getETB(), "ETB cannot be before ETA");
+        String err = validateSequence(getETA(), getETB(), "ETB must not be earlier than ETA.");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getETB(), getETD(), "ETD cannot be before ETB");
+        err = validateSequence(getETB(), getETD(), "ETD must not be earlier than ETB.");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getETA(), getETD(), "ETD cannot be before ETA");
+        err = validateSequence(getETA(), getETD(), "ETD must not be earlier than ETA");
         if (err != null) { log.saveError("Error", err); return false; }
 
         // --- Validasi urutan waktu realisasi (Actual): ATA -> ATB -> ATD ---
-        err = validateSequence(getATA(), getATB(), "ATB (start berthing) cannot be before ATA (ship arrive)");
+        err = validateSequence(getATA(), getATB(), "ATB (starting berth) must not be earlier than ATA (arrival)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getATB(), getATD(), "ATD (depature) cannot be before ATB (start berthing)");
+        err = validateSequence(getATB(), getATD(), "ATD (depature) must not be earlier than ATB (starting berth)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getATA(), getATD(), "ATD (depature) cannot be before ATA (ship arrive)");
+        err = validateSequence(getATA(), getATD(), "ATD (depature) must not be earlier than ATA (arrival)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        
+        / --- Cross-validation: a realization entry must not populate a stage
+        //     if the preceding stage is not yet filled (e.g., ATB is filled but ATA is empty
+        //     implies the vessel is considered berthed without ever having arrived) ---
         if (getATB() != null && getATA() == null)
         {
-            log.saveError("Error", "ATB tidak boleh diisi sebelum ATA (kapal tiba) diisi");
+            log.saveError("Error", "ATB must not be filled before ATA (arriving ship) is filled");
             return false;
         }
         if (getATD() != null && getATB() == null)
         {
-            log.saveError("Error", "ATD tidak boleh diisi sebelum ATB (mulai sandar) diisi");
+            log.saveError("Error", "ATD must not be entered before ATB (start of berthing) is entered.");
             return false;
+        }
+
+       // --- Check berth vs. vessel capacity — WARNING only; does NOT
+        //     block the save operation. beforeSave() is synchronous and
+        //     cannot display an interactive "Proceed/Cancel" dialog
+        //     mid-save (that requires a hook at the ZK client level,
+        //     not in this model layer)—so the record is saved regardless;
+        //     the user is notified via a warning message to ensure
+        //     awareness of the risk and can correct the Berth/Vessel
+        //     selection later if necessary.
+        MStevBerth berth = getBerth();
+        MStevVessel vessel = getVessel();
+        if (berth != null && vessel != null)
+        {
+            String capacityWarning = berth.getCapacityWarning(vessel);
+            if (capacityWarning != null)
+            {
+                log.saveWarning("Warning", "Dermaga '" + berth.getName() + "' potentially UNABLE to accommodate the ship '"
+                        + vessel.getName() + "': " + capacityWarning
+                        + "Data remains saved — please review your choice of terminal/vessel.");
+            }
         }
 
         return true;
     }
 
     /**
-     * Pastikan `first` tidak sesudah `second` bila keduanya terisi.
-     * Mengembalikan pesan error, atau null jika valid / salah satu kosong
-     * (field Actual memang boleh belum terisi di tengah proses).
+     * Ensure `first` is not after `second` if both are populated.
+     * Returns an error message, or null if valid or if one is empty
+     * (the Actual field is permitted to be empty mid-process).
      */
     private String validateSequence(Timestamp first, Timestamp second, String errorMessage)
     {
@@ -123,3 +149,4 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
         return null;
     }
 }
+
