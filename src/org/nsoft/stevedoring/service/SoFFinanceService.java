@@ -1,20 +1,22 @@
 package org.nsoft.stevedoring.service;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
+import org.compiere.model.MLocator;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
+import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.compiere.util.MSysConfig;
+import org.compiere.model.MSysConfig;
 import org.nsoft.stevedoring.model.MStevStatementOfFact;
+import org.nsoft.stevedoring.model.MStevStatementOfFactLine;
 import org.nsoft.stevedoring.model.MStevVesselSchedule;
 
 /**
@@ -22,30 +24,27 @@ import org.nsoft.stevedoring.model.MStevVesselSchedule;
  * {@link MStevStatementOfFact} di-Complete:
  *
  *  1. Update QtyOrdered pada C_OrderLine sesuai realisasi tonase SoF,
- *     PER PRODUK (satu SPK bisa punya beberapa line/komoditas berbeda —
- *     lihat {@link MStevStatementOfFact#getRealizedQtyByProduct()}).
+ *     PER BARIS {@link MStevStatementOfFactLine} (satu SPK bisa punya
+ *     beberapa line/komoditas berbeda).
  *  2. Terbitkan SATU M_InOut (header), dengan SATU M_InOutLine per
- *     produk yang direalisasikan, lalu di-Complete.
+ *     baris SoF, lalu di-Complete. M_InOutLine_ID yang terbentuk
+ *     disimpan balik ke STEV_StatementOfFactLine untuk traceability.
  *
- * KEPUTUSAN DESAIN: pembuatan C_Invoice SENGAJA TIDAK dilakukan di sini.
- * Setelah M_InOut Complete, penerbitan invoice diserahkan sepenuhnya ke
- * prosedur standar iDempiere:
- *   - C_BPartner.InvoiceRule menentukan kapan customer boleh di-invoice
- *     (Immediate / After Delivery / Customer Scheduled After Delivery),
- *   - Proses batch bawaan "Generate Invoices (Manual)" / scheduler
- *     C_InvoiceBatch mengambil M_InOut yang sudah Complete dan belum
- *     ter-invoice, lalu men-generate C_Invoice — termasuk untuk customer
- *     yang minta invoice digabung bulanan (banyak M_InOut -> 1 Invoice).
- * Ini menghindari SoFFinanceService memaksakan 1 SoF = 1 Invoice, yang
- * akan bentrok dengan kebutuhan invoicing batch/periodik semacam itu.
+ * PENTING — SUMBER DATA: proses ini TIDAK query ulang STEV_TallyLine.
+ * Sumbernya adalah {@link MStevStatementOfFact#getLines()} —
+ * snapshot yang sudah di-regenerate & dibekukan tepat sebelum Complete
+ * (lihat {@link MStevStatementOfFact#regenerateLines()} di
+ * {@code prepareIt()}). Ini memastikan angka yang dipakai untuk
+ * QtyOrdered/M_InOut adalah PERSIS yang sama dengan yang tampil di tab
+ * detail SoF saat user terakhir kali melihatnya sebelum klik Complete —
+ * bukan hasil hitung ulang yang bisa saja sudah berbeda kalau ada
+ * TallyLine yang berubah di antara waktu itu dan waktu Complete
+ * benar-benar diproses.
  *
- * Kode Faktur Pajak (mis. "07" untuk fasilitas FTZ Batam, kolom custom
- * C_Invoice.STEV_FakturPajakKode) TIDAK di-set otomatis di sini karena
- * invoice-nya sendiri tidak dibuat di sini. Kalau kode itu perlu otomatis
- * terisi juga saat invoice di-generate lewat proses batch standar,
- * sarankan didefault dari C_BPartner (mis. flag "Customer FTZ Batam")
- * lewat ModelValidator kecil terpisah di C_Invoice — BUKAN tanggung
- * jawab plugin Stevedoring ini.
+ * Pembuatan C_Invoice SENGAJA TIDAK dilakukan di sini — mengikuti
+ * prosedur/jadwal invoicing standar iDempiere (C_BPartner.InvoiceRule +
+ * proses batch Generate Invoices), supaya kompatibel dengan customer
+ * yang minta invoice digabung batch/bulanan.
  *
  * SEMUA dijalankan dalam trx yang sama dengan proses Complete SoF
  * (get_TrxName() dari SoF), sehingga jika salah satu langkah gagal,
@@ -70,66 +69,63 @@ public class SoFFinanceService
         MStevVesselSchedule schedule = sof.getVesselSchedule();
         MOrder order = schedule.getOrder();
 
-        // --- Realisasi per produk ---
-        Map<Integer, BigDecimal> realizedByProduct = sof.getRealizedQtyByProduct();
-        if (realizedByProduct.isEmpty())
-            throw new IllegalStateException("Tidak ada realisasi (STEV_TallyLine kosong) untuk SoF "
+        List<MStevStatementOfFactLine> sofLines = sof.getLines();
+        if (sofLines.isEmpty())
+            throw new IllegalStateException("STEV_StatementOfFactLine kosong untuk SoF "
                     + sof.getDocumentNo() + " — Complete dibatalkan");
 
-        MOrderLine[] orderLines = order.getLines(true, null);
-        if (orderLines.length == 0)
-            throw new IllegalStateException("SPK (C_Order) " + order.getDocumentNo() + " tidak punya line jasa");
-
         // -----------------------------------------------------------------
-        // 1) Update QtyOrdered per produk pada C_OrderLine yang sesuai
+        // 1) Validasi & update QtyOrdered per baris pada C_OrderLine terkait
         // -----------------------------------------------------------------
-        Map<Integer, MOrderLine> orderLineByProduct = new java.util.LinkedHashMap<>();
-        for (MOrderLine ol : orderLines)
-            orderLineByProduct.put(ol.getM_Product_ID(), ol);
-
-        for (Map.Entry<Integer, BigDecimal> entry : realizedByProduct.entrySet())
+        for (MStevStatementOfFactLine sofLine : sofLines)
         {
-            int productId = entry.getKey();
-            MOrderLine orderLine = orderLineByProduct.get(productId);
-            if (orderLine == null)
-                throw new IllegalStateException("Produk M_Product_ID=" + productId
-                        + " tercatat di STEV_TallyLine tapi TIDAK ADA di line SPK (C_Order) "
+            if (sofLine.getC_OrderLine_ID() <= 0)
+                throw new IllegalStateException("Produk M_Product_ID=" + sofLine.getM_Product_ID()
+                        + " (baris " + sofLine.getLine() + ") tidak punya C_OrderLine yang cocok di SPK "
                         + order.getDocumentNo() + " — periksa kembali kontrak awal SPK atau input Tally Line");
 
-            BigDecimal qtyRealized = entry.getValue();
-            if (qtyRealized == null || qtyRealized.signum() <= 0)
-                throw new IllegalStateException("Realisasi produk M_Product_ID=" + productId + " tidak valid (<= 0)");
+            if (sofLine.getQtyRealized() == null || sofLine.getQtyRealized().signum() <= 0)
+                throw new IllegalStateException("QtyRealized tidak valid (<= 0) pada baris "
+                        + sofLine.getLine() + " SoF " + sof.getDocumentNo());
 
-            orderLine.setQtyOrdered(qtyRealized);
+            MOrderLine orderLine = new MOrderLine(sof.getCtx(), sofLine.getC_OrderLine_ID(), trxName);
+            orderLine.setQtyOrdered(sofLine.getQtyRealized());
             if (!orderLine.save())
                 throw new IllegalStateException("Gagal update QtyOrdered pada C_OrderLine "
-                        + orderLine.getC_OrderLine_ID() + " (M_Product_ID=" + productId + ")");
+                        + orderLine.getC_OrderLine_ID() + " (M_Product_ID=" + sofLine.getM_Product_ID() + ")");
         }
 
         // -----------------------------------------------------------------
         // 2) Terbitkan & Complete M_InOut (Shipment) — satu header, satu
-        //    line per produk. Invoice TIDAK dibuat di sini — lihat catatan
-        //    desain di Javadoc class ini.
+        //    line per baris SoF. Invoice TIDAK dibuat di sini.
         // -----------------------------------------------------------------
-        MInOut inout = createServiceShipment(order, orderLineByProduct, realizedByProduct, sof, trxName);
+        createServiceShipment(order, sofLines, sof, trxName);
 
         sof.set_ValueOfColumn("Processed", "Y");
 
-        log.info("SoF " + sof.getDocumentNo() + " completed: " + realizedByProduct.size()
-                + " produk diproses, M_InOut=" + inout.getDocumentNo()
-                + " (invoice mengikuti prosedur/jadwal standar iDempiere, tidak dibuat di sini)");
+        log.info("SoF " + sof.getDocumentNo() + " completed: " + sofLines.size()
+                + " baris diproses (invoice mengikuti prosedur/jadwal standar iDempiere, tidak dibuat di sini)");
     }
 
-    private MInOut createServiceShipment(MOrder order, Map<Integer, MOrderLine> orderLineByProduct,
-            Map<Integer, BigDecimal> realizedByProduct, MStevStatementOfFact sof, String trxName)
+    private void createServiceShipment(MOrder order, List<MStevStatementOfFactLine> sofLines,
+            MStevStatementOfFact sof, String trxName)
     {
-        MInOut inout = new MInOut(order, 0 /* let DocType default resolve */, sof.getSignedDate() != null
-                ? sof.getSignedDate() : new Timestamp(System.currentTimeMillis()));
-
+        // PENTING: resolve & set Document Type SEBELUM save() pertama —
+        // jangan andalkan resolusi default bawaan MInOut (pass 0 lalu
+        // biarkan MInOut cari sendiri), karena itu yang menyebabkan error
+        // "Not found Document Type for Shipment" kalau tidak ada
+        // Document Type yang di-flag default untuk Org SPK ini.
         int shipmentDocTypeId = resolveDocTypeId(SYSCONFIG_SHIPMENT_DOCTYPE, MDocType.DOCBASETYPE_MaterialDelivery,
                 order.getAD_Client_ID(), order.getAD_Org_ID());
-        if (shipmentDocTypeId > 0)
-            inout.setC_DocTypeTarget_ID(shipmentDocTypeId);
+
+        MInOut inout = new MInOut(order, shipmentDocTypeId, sof.getSignedDate() != null
+                ? sof.getSignedDate() : new Timestamp(System.currentTimeMillis()));
+        // Catatan: beda dengan MOrder/MInvoice, M_InOut TIDAK punya kolom
+        // C_DocTypeTarget_ID — cuma C_DocType_ID. Constructor di atas
+        // sudah menerapkan shipmentDocTypeId lewat parameter kedua, tapi
+        // di-set eksplisit sekali lagi di sini supaya jelas terjamin
+        // (bukan bergantung asumsi internal constructor).
+        inout.setC_DocType_ID(shipmentDocTypeId);
 
         inout.setDocStatus(MInOut.DOCSTATUS_Drafted);
         inout.setDocAction(MInOut.DOCACTION_Complete);
@@ -137,43 +133,112 @@ public class SoFFinanceService
         if (!inout.save())
             throw new IllegalStateException("Gagal membuat header M_InOut untuk SoF " + sof.getDocumentNo());
 
-        // Satu M_InOutLine per produk yang direalisasikan
-        for (Map.Entry<Integer, BigDecimal> entry : realizedByProduct.entrySet())
+        // M_InOutLine.M_Locator_ID adalah FK sungguhan ke M_Locator — TIDAK
+        // boleh diisi 0 (bukan "kosong", tapi literal FK ke record yang
+        // tidak ada, selalu ditolak constraint database). Walau produknya
+        // Jasa, M_InOut/M_InOutLine tetap butuh Locator yang valid karena
+        // memang didesain untuk pergerakan barang fisik — pakai Default
+        // Locator dari Warehouse SPK.
+        int locatorId = getDefaultLocatorId(order);
+
+        // Satu M_InOutLine per baris SoF — sekaligus simpan balik
+        // M_InOutLine_ID ke baris SoF untuk traceability.
+        for (MStevStatementOfFactLine sofLine : sofLines)
         {
-            MOrderLine orderLine = orderLineByProduct.get(entry.getKey());
-            BigDecimal qty = entry.getValue();
+            MOrderLine orderLine = new MOrderLine(sof.getCtx(), sofLine.getC_OrderLine_ID(), trxName);
 
             MInOutLine line = new MInOutLine(inout);
-            line.setOrderLine(orderLine, 0, qty);
-            line.setQty(qty);
-            line.setM_Locator_ID(0); // Jasa: tidak menyentuh stok gudang fisik
-            line.setDescription("Auto-generated dari SoF " + sof.getDocumentNo());
+            line.setOrderLine(orderLine, locatorId, sofLine.getQtyRealized());
+            line.setQty(sofLine.getQtyRealized());
+            line.setM_Locator_ID(locatorId);
+            line.setDescription("Auto-generated dari SoF " + sof.getDocumentNo() + " baris " + sofLine.getLine());
             if (!line.save())
-                throw new IllegalStateException("Gagal membuat M_InOutLine (M_Product_ID=" + entry.getKey()
+                throw new IllegalStateException("Gagal membuat M_InOutLine (baris SoF " + sofLine.getLine()
                         + ") untuk InOut " + inout.getDocumentNo());
+
+            // Traceability: catat M_InOutLine_ID balik ke baris SoF, lewat
+            // SQL langsung (bukan sofLine.save()) supaya tidak memicu
+            // beforeSave/afterSave MStevStatementOfFactLine yang tidak perlu.
+            DB.executeUpdateEx(
+                    "UPDATE STEV_StatementOfFactLine SET M_InOutLine_ID=? WHERE STEV_StatementOfFactLine_ID=?",
+                    new Object[] { line.getM_InOutLine_ID(), sofLine.getSTEV_StatementOfFactLine_ID() }, trxName);
         }
 
         // Complete M_InOut supaya QtyDelivered pada tiap order line ikut
         // ter-update, dan M_InOut ini otomatis "terlihat" oleh proses
-        // Generate Invoices standar iDempiere (yang men-scan M_InOut
-        // Complete & belum ter-invoice sesuai C_BPartner.InvoiceRule).
+        // Generate Invoices standar iDempiere.
         if (!inout.processIt(MInOut.DOCACTION_Complete) || !inout.save())
             throw new IllegalStateException("Gagal Complete M_InOut " + inout.getDocumentNo()
                     + ": " + inout.getProcessMsg());
-
-        return inout;
     }
 
+    /**
+     * Ambil Default Locator dari Warehouse yang dipakai SPK. M_InOutLine
+     * WAJIB punya M_Locator_ID yang valid (FK sungguhan ke M_Locator),
+     * bahkan untuk produk Jasa — MWarehouse.getDefaultLocator() akan
+     * otomatis membuatkan satu locator generik kalau warehouse itu
+     * benar-benar belum punya locator sama sekali.
+     */
+    private int getDefaultLocatorId(MOrder order)
+    {
+        int warehouseId = order.getM_Warehouse_ID();
+        if (warehouseId <= 0)
+            throw new IllegalStateException("SPK (C_Order) " + order.getDocumentNo()
+                    + " tidak punya Warehouse — set M_Warehouse_ID pada SPK terlebih dahulu");
+
+        MWarehouse warehouse = MWarehouse.get(order.getCtx(), warehouseId);
+        MLocator locator = warehouse.getDefaultLocator();
+        if (locator == null || locator.getM_Locator_ID() <= 0)
+            throw new IllegalStateException("Warehouse " + warehouse.getName()
+                    + " tidak punya Default Locator — buat minimal 1 Locator untuk warehouse ini");
+
+        return locator.getM_Locator_ID();
+    }
+
+    /**
+     * Cari Document Type secara EKSPLISIT berdasarkan DocBaseType (+ Org
+     * SPK sebagai prioritas, fallback ke Org manapun yang match di
+     * client yang sama), TIDAK bergantung pada resolusi default bawaan
+     * MInOut/MInvoice (yang sering gagal kalau tidak ada Document Type
+     * yang ditandai default untuk kombinasi Client/Org tertentu).
+     *
+     * Kalau M_SysConfig (STEV_SHIPMENT_DOCTYPE_NAME) diisi, hasil query
+     * dipersempit ke Document Type dengan Name tersebut persis — kalau
+     * tidak diisi, ambil Document Type manapun dengan DocBaseType yang
+     * sesuai, prioritaskan yang Org-nya sama dengan SPK, lalu yang
+     * ditandai IsDefault.
+     *
+     * Melempar error EKSPLISIT (bukan return -1 lalu biarkan MInOut
+     * gagal dengan pesan generik) kalau benar-benar tidak ketemu, supaya
+     * user tahu persis harus setup apa di Document Type window.
+     */
     private int resolveDocTypeId(String sysConfigKey, String docBaseType, int adClientId, int adOrgId)
     {
-        String docTypeName = MSysConfig.getValue(sysConfigKey, null, adClientId, adOrgId);
-        if (docTypeName == null || docTypeName.isEmpty())
-            return -1; // biarkan default resolution bawaan MInOut yang jalan
+        String preferredName = MSysConfig.getValue(sysConfigKey, null, adClientId, adOrgId);
 
-        List<MDocType> types = new Query(Env.getCtx(), MDocType.Table_Name,
-                "Name=? AND DocBaseType=? AND AD_Client_ID=?", null)
-                .setParameters(docTypeName, docBaseType, adClientId)
+        StringBuilder whereClause = new StringBuilder("DocBaseType=? AND AD_Client_ID=? AND IsActive='Y'");
+        List<Object> params = new java.util.ArrayList<>();
+        params.add(docBaseType);
+        params.add(adClientId);
+
+        if (preferredName != null && !preferredName.isEmpty())
+        {
+            whereClause.append(" AND Name=?");
+            params.add(preferredName);
+        }
+
+        List<MDocType> types = new Query(Env.getCtx(), MDocType.Table_Name, whereClause.toString(), null)
+                .setParameters(params.toArray())
+                .setOrderBy("CASE WHEN AD_Org_ID=" + adOrgId + " THEN 0 ELSE 1 END, IsDefault DESC")
                 .list();
-        return types.isEmpty() ? -1 : types.get(0).getC_DocType_ID();
+
+        if (types.isEmpty())
+            throw new IllegalStateException("Tidak ditemukan Document Type dengan DocBaseType='" + docBaseType
+                    + "' untuk AD_Client_ID=" + adClientId
+                    + (preferredName != null ? " dan Name='" + preferredName + "'" : "")
+                    + " — buat/aktifkan Document Type yang sesuai di menu Document Type (Application Dictionary), "
+                    + "atau set M_SysConfig '" + sysConfigKey + "' ke nama Document Type yang benar.");
+
+        return types.get(0).getC_DocType_ID();
     }
 }

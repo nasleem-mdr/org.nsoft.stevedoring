@@ -34,7 +34,7 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20260916L;
+	private static final long serialVersionUID = 20260918L;
 
     /** Standard Constructor */
     public X_STEV_StatementOfFact (Properties ctx, int STEV_StatementOfFact_ID, String trxName)
@@ -42,6 +42,7 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
       super (ctx, STEV_StatementOfFact_ID, trxName);
       /** if (STEV_StatementOfFact_ID == 0)
         {
+			setCompleteButton (null);
 			setDocAction (null);
 // CO
 			setDocStatus (null);
@@ -62,6 +63,7 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
       super (ctx, STEV_StatementOfFact_ID, trxName, virtualColumns);
       /** if (STEV_StatementOfFact_ID == 0)
         {
+			setCompleteButton (null);
 			setDocAction (null);
 // CO
 			setDocStatus (null);
@@ -82,6 +84,7 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
       super (ctx, STEV_StatementOfFact_UU, trxName);
       /** if (STEV_StatementOfFact_UU == null)
         {
+			setCompleteButton (null);
 			setDocAction (null);
 // CO
 			setDocStatus (null);
@@ -102,6 +105,7 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
       super (ctx, STEV_StatementOfFact_UU, trxName, virtualColumns);
       /** if (STEV_StatementOfFact_UU == null)
         {
+			setCompleteButton (null);
 			setDocAction (null);
 // CO
 			setDocStatus (null);
@@ -200,6 +204,21 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set CompleteButton.
+		@param CompleteButton CompleteButton
+	*/
+	public void setCompleteButton (String CompleteButton)
+	{
+		set_Value (COLUMNNAME_CompleteButton, CompleteButton);
+	}
+
+	/** Get CompleteButton.
+		@return CompleteButton	  */
+	public String getCompleteButton()
+	{
+		return (String)get_Value(COLUMNNAME_CompleteButton);
 	}
 
 	/** Set Description.
@@ -471,9 +490,9 @@ public class X_STEV_StatementOfFact extends PO implements I_STEV_StatementOfFact
 	public void setSTEV_VesselSchedule_ID (int STEV_VesselSchedule_ID)
 	{
 		if (STEV_VesselSchedule_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_STEV_VesselSchedule_ID, null);
+			set_Value (COLUMNNAME_STEV_VesselSchedule_ID, null);
 		else
-			set_ValueNoCheck (COLUMNNAME_STEV_VesselSchedule_ID, Integer.valueOf(STEV_VesselSchedule_ID));
+			set_Value (COLUMNNAME_STEV_VesselSchedule_ID, Integer.valueOf(STEV_VesselSchedule_ID));
 	}
 
 	/** Get STEV_VesselSchedule.

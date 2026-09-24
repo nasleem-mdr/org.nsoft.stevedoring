@@ -7,9 +7,21 @@ Automatic-Module-Name: org.nsoft.stevedoring
 Bundle-Activator: org.nsoft.stevedoring.base.Activator
 Bundle-Vendor: NSoft
 Service-Component: OSGI-INF/stevedoring-model-factory.xml,
- OSGI-INF/stevedoring-validator-factory.xml
-Require-Bundle: org.adempiere.base;bundle-version="13.0.0"
-Import-Package: org.osgi.framework;version="1.8.0"
+ OSGI-INF/stevedoring-validator-factory.xml,
+ OSGI-INF/stevedoring-process-factory.xml,
+ OSGI-INF/stevedoring-form-factory.xml
+Require-Bundle: org.adempiere.base;bundle-version="13.0.0",
+ org.adempiere.ui.zk;bundle-version="1.0.0"
+Import-Package: org.osgi.framework;version="1.8.0",
+ org.adempiere.webui.component,
+ org.adempiere.webui.factory,
+ org.adempiere.webui.panel,
+ org.compiere.model,
+ org.compiere.util,
+ org.zkoss.zk.ui,
+ org.zkoss.zk.ui.event,
+ org.zkoss.zk.ui.util,
+ org.zkoss.zul
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: org.nsoft.stevedoring.model,
@@ -17,4 +29,5 @@ Export-Package: org.nsoft.stevedoring.model,
  org.nsoft.stevedoring.validator,
  org.nsoft.stevedoring.process,
  org.nsoft.stevedoring.callout,
+ org.nsoft.stevedoring.form,
  org.nsoft.stevedoring.base

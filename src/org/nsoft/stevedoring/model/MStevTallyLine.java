@@ -1,13 +1,33 @@
+/***********************************************************************
+ * This file is part of iDempiere ERP Open Source                      *
+ * http://www.idempiere.org                                            *
+ *                                                                     *
+ * Copyright (C) Contributors                                          *
+ *                                                                     *
+ * This program is free software; you can redistribute it and/or       *
+ * modify it under the terms of the GNU General Public License         *
+ * as published by the Free Software Foundation; either version 2      *
+ * of the License, or (at your option) any later version.              *
+ *                                                                     *
+ * This program is distributed in the hope that it will be useful,     *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of      *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the        *
+ * GNU General Public License for more details.                        *
+ *                                                                     *
+ * You should have received a copy of the GNU General Public License   *
+ * along with this program; if not, write to the Free Software         *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,          *
+ * MA 02110-1301, USA.                                                 *
+ *                                                                     *
+ * Contributors:                                                       *
+ * - Nasleem - NSoft - IDempiere                                       *
+ **********************************************************************/
+
 package org.nsoft.stevedoring.model;
 
 import java.sql.ResultSet;
 import java.util.Properties;
 
-/**
- * Detail transaksi ritase/bongkar-muat: per shift (di header TallySheet),
- * per palka (HatchNo), per alat berat (Equipment_ID / S_Resource), dan
- * per produk/komoditas (M_Product_ID).
- */
 public class MStevTallyLine extends X_STEV_TallyLine
 {
     private static final long serialVersionUID = 1L;
@@ -27,12 +47,12 @@ public class MStevTallyLine extends X_STEV_TallyLine
     {
         if (getQtyMoved() != null && getQtyMoved().signum() <= 0)
         {
-            log.saveError("Error", "QtyMoved harus lebih besar dari 0");
+            log.saveError("Error", "QtyMoved must be greater than 0");
             return false;
         }
         if (getTimeStart() != null && getTimeEnd() != null && getTimeEnd().before(getTimeStart()))
         {
-            log.saveError("Error", "TimeEnd tidak boleh sebelum TimeStart");
+            log.saveError("Error", "TimeEnd cannot be before TimeStart");
             return false;
         }
         return true;

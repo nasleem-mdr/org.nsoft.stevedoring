@@ -23,60 +23,37 @@
  * - Nasleem - NSoft - IDempiere                                       *
  **********************************************************************/
 
-package org.nsoft.stevedoring.callout;
+package org.nsoft.stevedoring.base;
 
-import java.util.Properties;
-
-import org.adempiere.base.IColumnCallout;
-import org.compiere.model.GridField;
-import org.compiere.model.GridTab;
-import org.compiere.model.MOrder;
+import org.adempiere.base.IProcessFactory;
+import org.compiere.process.ProcessCall;
+import org.nsoft.stevedoring.process.STEV_CompleteStatementOfFact;
+import org.nsoft.stevedoring.process.STEV_RecordBerthing;
+import org.nsoft.stevedoring.process.STEV_RecordDeparture;
+import org.nsoft.stevedoring.process.STEV_RecordVesselArrival;
+import org.nsoft.stevedoring.process.STEV_OpenSignaturePad;
 
 /**
- * Callout for C_Order_ID on STEV_VesselSchedule tab.
- *
- * Automatically populates C_BPartner_ID (Customer/Shipping Agent) upon selecting 
- * a Work Order (C_Order) to prevent redundant manual data entry.
- *
- * Registered via OSGi IMappedColumnCalloutFactory (iDempiere NF9+) in {@link Activator}.
- * Requires no manual Application Dictionary configuration.
- */
-public class STEV_CalloutOrderBPartner implements IColumnCallout
+* Custom Process Stevedoring registration factory via OSGi (IProcessFactory).
+* Required so that the iDempiere ClassLoader can resolve classes
+* from this bundle (prevents the 'Failed to create new process instance' error).
+*/
+public class StevedoringProcessFactory implements IProcessFactory
 {
-    private static final String COLUMN_C_BPARTNER_ID = "C_BPartner_ID";
-
     @Override
-    public String start(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value, Object oldValue)
+    public ProcessCall newProcessInstance(String className)
     {
-       if (value == null)
-        {
-            mTab.setValue(COLUMN_C_BPARTNER_ID, null);
-            return "";
-        }
+        if (STEV_RecordVesselArrival.class.getName().equals(className))
+            return new STEV_RecordVesselArrival();
+        if (STEV_RecordBerthing.class.getName().equals(className))
+            return new STEV_RecordBerthing();
+        if (STEV_RecordDeparture.class.getName().equals(className))
+            return new STEV_RecordDeparture();
+        if (STEV_CompleteStatementOfFact.class.getName().equals(className))
+            return new STEV_CompleteStatementOfFact();
+        if (STEV_OpenSignaturePad.class.getName().equals(className))
+            return new STEV_OpenSignaturePad();
 
-        int orderId;
-        try
-        {
-            orderId = Integer.parseInt(value.toString());
-        }
-        catch (NumberFormatException e)
-        {
-            return ""; 
-        }
-
-        if (orderId <= 0)
-        {
-            mTab.setValue(COLUMN_C_BPARTNER_ID, null);
-            return "";
-        }
-
-        MOrder order = new MOrder(ctx, orderId, null);
-        if (order.get_ID() != orderId)
-            return "Error: Sales Order (C_Order) with ID " + orderId + " not found";
-
-        int bpartnerId = order.getC_BPartner_ID();
-        mTab.setValue(COLUMN_C_BPARTNER_ID, bpartnerId > 0 ? bpartnerId : null);
-
-        return "";
+        return null; // biarkan factory lain (default core) yang coba, kalau ada
     }
 }

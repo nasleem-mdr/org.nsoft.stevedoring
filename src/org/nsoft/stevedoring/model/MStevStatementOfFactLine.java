@@ -23,60 +23,39 @@
  * - Nasleem - NSoft - IDempiere                                       *
  **********************************************************************/
 
-package org.nsoft.stevedoring.callout;
+package org.nsoft.stevedoring.model;
 
+import java.sql.ResultSet;
 import java.util.Properties;
 
-import org.adempiere.base.IColumnCallout;
-import org.compiere.model.GridField;
-import org.compiere.model.GridTab;
-import org.compiere.model.MOrder;
-
 /**
- * Callout for C_Order_ID on STEV_VesselSchedule tab.
- *
- * Automatically populates C_BPartner_ID (Customer/Shipping Agent) upon selecting 
- * a Work Order (C_Order) to prevent redundant manual data entry.
- *
- * Registered via OSGi IMappedColumnCalloutFactory (iDempiere NF9+) in {@link Activator}.
- * Requires no manual Application Dictionary configuration.
- */
-public class STEV_CalloutOrderBPartner implements IColumnCallout
+* Statement of Fact detail lines — a snapshot of actuals per product + UOM,
+* automatically regenerated from STEV_TallyLine (see
+* MStevStatementOfFact#regenerateLines()). NOT intended for
+* manual input/editing by the user.
+*/
+public class MStevStatementOfFactLine extends X_STEV_StatementOfFactLine
 {
-    private static final String COLUMN_C_BPARTNER_ID = "C_BPartner_ID";
+    private static final long serialVersionUID = 1L;
+
+    public MStevStatementOfFactLine(Properties ctx, int STEV_StatementOfFactLine_ID, String trxName)
+    {
+        super(ctx, STEV_StatementOfFactLine_ID, trxName);
+    }
+
+    public MStevStatementOfFactLine(Properties ctx, ResultSet rs, String trxName)
+    {
+        super(ctx, rs, trxName);
+    }
 
     @Override
-    public String start(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value, Object oldValue)
+    protected boolean beforeSave(boolean newRecord)
     {
-       if (value == null)
+        if (getQtyRealized() == null || getQtyRealized().signum() <= 0)
         {
-            mTab.setValue(COLUMN_C_BPARTNER_ID, null);
-            return "";
+            log.saveError("Error", "QtyRealized must be greater than 0");
+            return false;
         }
-
-        int orderId;
-        try
-        {
-            orderId = Integer.parseInt(value.toString());
-        }
-        catch (NumberFormatException e)
-        {
-            return ""; 
-        }
-
-        if (orderId <= 0)
-        {
-            mTab.setValue(COLUMN_C_BPARTNER_ID, null);
-            return "";
-        }
-
-        MOrder order = new MOrder(ctx, orderId, null);
-        if (order.get_ID() != orderId)
-            return "Error: Sales Order (C_Order) with ID " + orderId + " not found";
-
-        int bpartnerId = order.getC_BPartner_ID();
-        mTab.setValue(COLUMN_C_BPARTNER_ID, bpartnerId > 0 ? bpartnerId : null);
-
-        return "";
+        return true;
     }
 }

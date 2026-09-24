@@ -45,12 +45,12 @@ public class MStevEquipmentDetail extends X_STEV_EquipmentDetail
         {
             if (getA_Asset_ID() <= 0)
             {
-                log.saveError("Error", "Alat berstatus 'Milik Sendiri' wajib terhubung ke A_Asset");
+                log.saveError("Error", "Tools with 'Owned' status must be connected to Asset");
                 return false;
             }
             if (getC_BPartner_ID() > 0)
             {
-                log.saveError("Error", "Alat berstatus 'Milik Sendiri' tidak boleh punya vendor sewa (C_BPartner_ID)");
+                log.saveError("Error", "Resources with 'Owned' status may not have a rental vendor (C_BPartner_ID)");
                 return false;
             }
         }
@@ -58,18 +58,18 @@ public class MStevEquipmentDetail extends X_STEV_EquipmentDetail
         {
             if (getC_BPartner_ID() <= 0)
             {
-                log.saveError("Error", "Alat berstatus 'Sewa' wajib diisi vendor (C_BPartner_ID)");
+                log.saveError("Error", "Resources with 'Rent' status must be filled in by the vendor (C_BPartner_ID)");
                 return false;
             }
             if (getA_Asset_ID() > 0)
             {
-                log.saveError("Error", "Alat berstatus 'Sewa' tidak boleh terhubung ke A_Asset milik sendiri");
+                log.saveError("Error", "Resources with 'Rented' status must not be connected to your own Asset");
                 return false;
             }
             if (getRentalEndDate() != null && getRentalStartDate() != null
                     && getRentalEndDate().before(getRentalStartDate()))
             {
-                log.saveError("Error", "RentalEndDate tidak boleh sebelum RentalStartDate");
+                log.saveError("Error", "The Rental End Date cannot be before the Rental Start Date");
                 return false;
             }
         }

@@ -1,3 +1,28 @@
+/***********************************************************************
+ * This file is part of iDempiere ERP Open Source                      *
+ * http://www.idempiere.org                                            *
+ *                                                                     *
+ * Copyright (C) Contributors                                          *
+ *                                                                     *
+ * This program is free software; you can redistribute it and/or       *
+ * modify it under the terms of the GNU General Public License         *
+ * as published by the Free Software Foundation; either version 2      *
+ * of the License, or (at your option) any later version.              *
+ *                                                                     *
+ * This program is distributed in the hope that it will be useful,     *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of      *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the        *
+ * GNU General Public License for more details.                        *
+ *                                                                     *
+ * You should have received a copy of the GNU General Public License   *
+ * along with this program; if not, write to the Free Software         *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,          *
+ * MA 02110-1301, USA.                                                 *
+ *                                                                     *
+ * Contributors:                                                       *
+ * - Nasleem - NSoft - IDempiere                                       *
+ **********************************************************************/
+
 package org.nsoft.stevedoring.model;
 
 import java.sql.ResultSet;
@@ -52,28 +77,26 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
     protected boolean beforeSave(boolean newRecord)
     {
         // --- Validasi urutan waktu rencana (Estimated): ETA -> ETB -> ETD ---
-        String err = validateSequence(getETA(), getETB(), "ETB tidak boleh sebelum ETA");
+        String err = validateSequence(getETA(), getETB(), "ETB cannot be before ETA");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getETB(), getETD(), "ETD tidak boleh sebelum ETB");
+        err = validateSequence(getETB(), getETD(), "ETD cannot be before ETB");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getETA(), getETD(), "ETD tidak boleh sebelum ETA");
+        err = validateSequence(getETA(), getETD(), "ETD cannot be before ETA");
         if (err != null) { log.saveError("Error", err); return false; }
 
         // --- Validasi urutan waktu realisasi (Actual): ATA -> ATB -> ATD ---
-        err = validateSequence(getATA(), getATB(), "ATB (mulai sandar) tidak boleh sebelum ATA (kapal tiba)");
+        err = validateSequence(getATA(), getATB(), "ATB (start berthing) cannot be before ATA (ship arrive)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getATB(), getATD(), "ATD (berangkat) tidak boleh sebelum ATB (mulai sandar)");
+        err = validateSequence(getATB(), getATD(), "ATD (depature) cannot be before ATB (start berthing)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        err = validateSequence(getATA(), getATD(), "ATD (berangkat) tidak boleh sebelum ATA (kapal tiba)");
+        err = validateSequence(getATA(), getATD(), "ATD (depature) cannot be before ATA (ship arrive)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        // --- Validasi silang: realisasi tidak boleh mengisi tahap yang
-        //     tahap sebelumnya belum terisi (mis. ATB terisi tapi ATA kosong
-        //     berarti kapal dianggap sandar tanpa pernah tiba) ---
+        
         if (getATB() != null && getATA() == null)
         {
             log.saveError("Error", "ATB tidak boleh diisi sebelum ATA (kapal tiba) diisi");

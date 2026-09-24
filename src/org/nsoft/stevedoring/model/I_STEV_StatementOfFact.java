@@ -96,6 +96,15 @@ public interface I_STEV_StatementOfFact
 	@Deprecated(since="13") // use better methods with cache
 	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException;
 
+    /** Column name CompleteButton */
+    public static final String COLUMNNAME_CompleteButton = "CompleteButton";
+
+	/** Set CompleteButton	  */
+	public void setCompleteButton (String CompleteButton);
+
+	/** Get CompleteButton	  */
+	public String getCompleteButton();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 

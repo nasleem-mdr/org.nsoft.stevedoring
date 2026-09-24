@@ -32,7 +32,39 @@ public class X_STEV_TallySheet extends PO implements I_STEV_TallySheet, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20260916L;
+	private static final long serialVersionUID = 20260917L;
+
+    /** Standard Constructor */
+    public X_STEV_TallySheet (Properties ctx, int STEV_TallySheet_ID, String trxName)
+    {
+      super (ctx, STEV_TallySheet_ID, trxName);
+      /** if (STEV_TallySheet_ID == 0)
+        {
+			setDocStatus (null);
+// DR
+			setDocumentNo (null);
+			setSTEV_TallySheet_ID (0);
+			setSTEV_VesselSchedule_ID (0);
+			setShiftNo (null);
+			setTallyDate (new Timestamp( System.currentTimeMillis() ));
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_STEV_TallySheet (Properties ctx, int STEV_TallySheet_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, STEV_TallySheet_ID, trxName, virtualColumns);
+      /** if (STEV_TallySheet_ID == 0)
+        {
+			setDocStatus (null);
+// DR
+			setDocumentNo (null);
+			setSTEV_TallySheet_ID (0);
+			setSTEV_VesselSchedule_ID (0);
+			setShiftNo (null);
+			setTallyDate (new Timestamp( System.currentTimeMillis() ));
+        } */
+    }
 
     /** Standard Constructor */
     public X_STEV_TallySheet (Properties ctx, String STEV_TallySheet_UU, String trxName)

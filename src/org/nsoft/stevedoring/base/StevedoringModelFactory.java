@@ -1,11 +1,37 @@
+/***********************************************************************
+ * This file is part of iDempiere ERP Open Source                      *
+ * http://www.idempiere.org                                            *
+ *                                                                     *
+ * Copyright (C) Contributors                                          *
+ *                                                                     *
+ * This program is free software; you can redistribute it and/or       *
+ * modify it under the terms of the GNU General Public License         *
+ * as published by the Free Software Foundation; either version 2      *
+ * of the License, or (at your option) any later version.              *
+ *                                                                     *
+ * This program is distributed in the hope that it will be useful,     *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of      *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the        *
+ * GNU General Public License for more details.                        *
+ *                                                                     *
+ * You should have received a copy of the GNU General Public License   *
+ * along with this program; if not, write to the Free Software         *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,          *
+ * MA 02110-1301, USA.                                                 *
+ *                                                                     *
+ * Contributors:                                                       *
+ * - Nasleem - NSoft - IDempiere                                       *
+ **********************************************************************/
 package org.nsoft.stevedoring.base;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.adempiere.base.IModelFactory;
 import org.compiere.model.PO;
+import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.nsoft.stevedoring.model.MStevBerth;
 import org.nsoft.stevedoring.model.MStevEquipmentDetail;
@@ -14,17 +40,19 @@ import org.nsoft.stevedoring.model.MStevTallyLine;
 import org.nsoft.stevedoring.model.MStevTallySheet;
 import org.nsoft.stevedoring.model.MStevVessel;
 import org.nsoft.stevedoring.model.MStevVesselSchedule;
-
+import org.nsoft.stevedoring.model.MStevStatementOfFactLine;
 /**
- * Mendaftarkan model class custom Stevedoring ke iDempiere lewat OSGi
- * IModelFactory, sebagai alternatif dari mengisi AD_Table.ClassName
- * lewat GUI. Dengan cara ini, plugin tetap "self-contained": cukup
- * deploy bundle ini, tidak perlu langkah manual tambahan di Application
- * Dictionary untuk pemetaan class (registrasi AD_Table/AD_Column via
- * DB.Synchronize tetap diperlukan, hanya pemetaan class-nya yang otomatis).
- */
+* Registers a custom Stevedoring model class to iDempiere via OSGi
+* IModelFactory, as an alternative to populating AD_Table.ClassName
+* via the GUI. This way, the plugin remains "self-contained": simply
+* deploy this bundle, no additional manual steps are required in the Application
+* Dictionary for class mapping (registering AD_Table/AD_Column via
+* DB.Synchronize is still required, only the class mapping is automatic).
+*/
 public class StevedoringModelFactory implements IModelFactory
 {
+    private static final CLogger log = CLogger.getCLogger(StevedoringModelFactory.class);
+
     @Override
     public Class<?> getClass(String tableName)
     {
@@ -44,6 +72,8 @@ public class StevedoringModelFactory implements IModelFactory
                 return MStevTallyLine.class;
             case MStevStatementOfFact.Table_Name:
                 return MStevStatementOfFact.class;
+            case MStevStatementOfFactLine.Table_Name:
+                return MStevStatementOfFactLine.class;
             default:
                 return null;
         }
@@ -62,7 +92,7 @@ public class StevedoringModelFactory implements IModelFactory
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Gagal instantiate " + clazz.getName(), e);
+            throw wrapWithRootCause(clazz, e);
         }
     }
 
@@ -79,7 +109,23 @@ public class StevedoringModelFactory implements IModelFactory
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Gagal instantiate " + clazz.getName(), e);
+            throw wrapWithRootCause(clazz, e);
         }
     }
+
+    
+    private RuntimeException wrapWithRootCause(Class<?> clazz, Exception e)
+    {
+        Throwable rootCause = (e instanceof InvocationTargetException && e.getCause() != null)
+                ? e.getCause()
+                : e;
+        String message = "Failed to instantiate " + clazz.getName() + " — root cause: "
+                + rootCause.getClass().getSimpleName() + ": " + rootCause.getMessage();
+
+        log.severe(message);
+        rootCause.printStackTrace();
+
+        return new RuntimeException(message, rootCause);
+    }
 }
+
