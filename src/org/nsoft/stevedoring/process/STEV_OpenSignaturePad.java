@@ -1,42 +1,27 @@
 package org.nsoft.stevedoring.process;
 
 import org.adempiere.webui.apps.AEnv;
-import org.adempiere.webui.component.Window;
+import org.adempiere.webui.panel.ADForm;
+import org.adempiere.webui.session.SessionManager;
+import org.compiere.model.Query;
 import org.compiere.process.SvrProcess;
-import org.nsoft.stevedoring.form.STEV_SignaturePadPanel;
+import org.compiere.util.Env;
+import org.nsoft.stevedoring.form.STEV_SignaturePadForm;
 import org.nsoft.stevedoring.model.MStevStatementOfFact;
-import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.Desktop;
 
 /**
  * Tombol "Tanda Tangan Digital" pada Tab STEV_StatementOfFact — membuka
- * dialog tanda tangan sebagai floating Window modal SUNGGUHAN di atas
- * window SoF yang memicunya (bukan tab baru di desktop, seperti yang
- * terjadi kalau memakai mekanisme AD_Process "Special Form").
- *
- * CATATAN ARSITEKTUR:
- * - Window & panel dibuat di dalam Executions.schedule(desktop, ...),
- *   supaya konstruksinya berjalan di UI/event thread ZK yang sudah
- *   attached ke Desktop — inilah yang membuat panggilan Window.doModal()
- *   aman (menghindari NullPointerException getAppDesktop() dari
- *   percobaan pertama, dan SuspendNotAllowedException kalau dipanggil
- *   sebelum attach).
- * - STEV_SignaturePadPanel yang di-append adalah PLAIN ZK component
- *   (bukan ADForm) — UI-nya selesai dibangun langsung di constructor,
- *   jadi tidak butuh lifecycle ADForm.init()/initForm() yang hanya
- *   dipanggil oleh ADForm.openForm(). Kalau kamu pakai STEV_SignaturePadForm
- *   (ADForm) di sini, hasilnya blank karena initForm() tidak pernah terpanggil.
- * - Yang dioper ke panel adalah ID record (int), BUKAN objek PO yang
- *   sudah di-load dengan get_TrxName(): transaksi proses ini akan
- *   commit/ditutup begitu doIt() selesai, jauh sebelum user benar-benar
- *   berinteraksi dengan dialog (apalagi klik Simpan). Panel me-load
- *   ulang record itu sendiri dengan trxName=null saat dibangun, supaya
- *   aman dipakai belakangan.
+ * STEV_SignaturePadForm dengan Document No SoF yang sedang dibuka.
+ * 
+ * Diperbaiki agar aman dari NullPointerException SessionManager.getAppDesktop()
+ * dengan memastikan eksekusi form dibuka melalui jalur UI Desktop ZK yang aktif.
  */
 public class STEV_OpenSignaturePad extends SvrProcess
 {
+    public static final String CTX_KEY_TARGET_DOCNO = "STEV_SIGNATURE_TARGET_DOCNO";
+
     private int p_STEV_StatementOfFact_ID = 0;
 
     @Override
@@ -51,8 +36,6 @@ public class STEV_OpenSignaturePad extends SvrProcess
         if (p_STEV_StatementOfFact_ID <= 0)
             throw new IllegalStateException("Record Statement of Fact tidak ditemukan");
 
-        // Pengecekan validitas dilakukan di transaksi proses ini (read-only) —
-        // aman, karena tidak disimpan/dipakai lagi setelah doIt() selesai.
         MStevStatementOfFact sof = new MStevStatementOfFact(getCtx(), p_STEV_StatementOfFact_ID, get_TrxName());
         if (sof.get_ID() <= 0)
             throw new IllegalStateException("Statement of Fact ID " + p_STEV_StatementOfFact_ID + " tidak valid");
@@ -61,49 +44,54 @@ public class STEV_OpenSignaturePad extends SvrProcess
             throw new IllegalStateException("SoF " + sof.getDocumentNo()
                     + " sudah Completed — tanda tangan tidak bisa diubah lagi");
 
-        final String docNo = sof.getDocumentNo();
-        final int soFRecordId = p_STEV_StatementOfFact_ID;
+        // Simpan Document No ke context session
+        Env.setContext(getCtx(), CTX_KEY_TARGET_DOCNO, sof.getDocumentNo());
 
-        final Desktop desktop = AEnv.getDesktop();
+        final int adFormId = findFormId(STEV_SignaturePadForm.class.getName());
+        if (adFormId <= 0)
+            throw new IllegalStateException("AD_Form untuk " + STEV_SignaturePadForm.class.getName()
+                    + " belum terdaftar — buat dulu record AD_Form di Application Dictionary");
 
-        if (desktop == null || !desktop.isAlive())
-            throw new IllegalStateException("Sesi ZK Desktop tidak aktif.");
-
-        Executions.schedule(desktop, new EventListener<Event>()
+        // Cek apakah kita berada di lingkungan WebUI dengan Desktop ZK aktif
+        final Desktop desktop = Executions.getCurrent() != null ? Executions.getCurrent().getDesktop() : null;
+        
+        if (desktop != null && desktop.isAlive())
         {
-            @Override
-            public void onEvent(Event event) throws Exception
-            {
-                try
-                {
-                    Window win = new Window();
-                    win.setTitle("Tanda Tangan Digital - " + docNo);
-                    win.setClosable(true);
-                    win.setSizable(true);
-                    win.setBorder("normal");
-                    win.setWidth("580px");
-                    win.setHeight("480px");
-
-                    // Plain component — UI langsung terbentuk di constructor,
-                    // tidak perlu lifecycle ADForm.
-                    STEV_SignaturePadPanel panel = new STEV_SignaturePadPanel(soFRecordId);
-                    win.appendChild(panel);
-                    win.setPage(desktop.getFirstPage());
-
-                    // Baru aman dipanggil SETELAH attach (appendChild + setPage) —
-                    // supaya kalau SoF ini sudah pernah ditandatangani, gambar
-                    // lamanya langsung dimuat ke kanvas (kasus edit/update).
-                    panel.loadExistingSignatureIntoCanvas();
-
-                    win.doModal();
+            // Jika desktop aktif, jalankan pembukaan form langsung di thread UI ZK
+            Executions.schedule(desktop, new org.zkoss.zk.ui.event.EventListener<org.zkoss.zk.ui.event.Event>() {
+                @Override
+                public void onEvent(org.zkoss.zk.ui.event.Event event) throws Exception {
+                    try {
+                        ADForm.openForm(adFormId);
+                    } catch (Exception e) {
+                        log.severe("Gagal membuka form signature pad: " + e.getLocalizedMessage());
+                    }
                 }
-                catch (Exception e)
-                {
-                    log.severe("Gagal menampilkan dialog signature: " + e.getMessage());
-                }
+            }, null);
+        }
+        else 
+        {
+            // Fallback jika dipanggil murni dari background server/scheduler tanpa ZK Desktop session
+            if (SessionManager.getAppDesktop() != null) {
+                AEnv.executeAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        ADForm.openForm(adFormId);
+                    }
+                });
+            } else {
+                throw new IllegalStateException("Tidak dapat membuka form: Sesi WebUI (Desktop) tidak ditemukan. Pastikan dijalankan dari client WebUI.");
             }
-        }, null);
+        }
 
-        return "@Success@";
+        return "Form Tanda Tangan Digital dibuka untuk SoF " + sof.getDocumentNo();
+    }
+
+    private int findFormId(String className)
+    {
+        org.compiere.model.PO po = new Query(getCtx(), "AD_Form", "Classname=?", get_TrxName())
+                .setParameters(className)
+                .first();
+        return po != null ? po.get_ID() : 0;
     }
 }
