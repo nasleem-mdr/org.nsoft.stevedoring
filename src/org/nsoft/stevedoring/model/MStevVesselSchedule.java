@@ -99,7 +99,7 @@ public class MStevVesselSchedule extends X_STEV_VesselSchedule
         err = validateSequence(getATA(), getATD(), "ATD (depature) must not be earlier than ATA (arrival)");
         if (err != null) { log.saveError("Error", err); return false; }
 
-        / --- Cross-validation: a realization entry must not populate a stage
+        // --- Cross-validation: a realization entry must not populate a stage
         //     if the preceding stage is not yet filled (e.g., ATB is filled but ATA is empty
         //     implies the vessel is considered berthed without ever having arrived) ---
         if (getATB() != null && getATA() == null)

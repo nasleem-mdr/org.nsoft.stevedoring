@@ -199,12 +199,12 @@ s total internal volume.
 	/** Set LOA.
 	  * Length Overall (LOA): The total length of the ship from the tip of the bow to the stern.
 	  */
-	public void setLOA (int LOA);
+	public void setLOA (BigDecimal LOA);
 
 	/** Get LOA.
 	  * Length Overall (LOA): The total length of the ship from the tip of the bow to the stern.
 	  */
-	public int getLOA();
+	public BigDecimal getLOA();
 
     /** Column name NRT */
     public static final String COLUMNNAME_NRT = "NRT";

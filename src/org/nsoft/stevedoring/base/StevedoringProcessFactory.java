@@ -32,6 +32,7 @@ import org.nsoft.stevedoring.process.STEV_RecordBerthing;
 import org.nsoft.stevedoring.process.STEV_RecordDeparture;
 import org.nsoft.stevedoring.process.STEV_RecordVesselArrival;
 import org.nsoft.stevedoring.process.STEV_OpenSignaturePad;
+import org.nsoft.stevedoring.process.STEV_ViewSignature;
 
 /**
 * Custom Process Stevedoring registration factory via OSGi (IProcessFactory).
@@ -53,6 +54,8 @@ public class StevedoringProcessFactory implements IProcessFactory
             return new STEV_CompleteStatementOfFact();
         if (STEV_OpenSignaturePad.class.getName().equals(className))
             return new STEV_OpenSignaturePad();
+        if (STEV_ViewSignature.class.getName().equals(className))
+            return new STEV_ViewSignature();
 
         return null; // biarkan factory lain (default core) yang coba, kalau ada
     }

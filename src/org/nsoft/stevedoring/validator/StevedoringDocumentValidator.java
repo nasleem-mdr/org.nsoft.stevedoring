@@ -1,7 +1,7 @@
 package org.nsoft.stevedoring.validator;
 
 import org.compiere.model.MClient;
-import org.compiere.model.ModelValidationEngine; // Fix: Added missing import
+import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
@@ -9,7 +9,13 @@ import org.nsoft.stevedoring.model.MStevStatementOfFact;
 import org.nsoft.stevedoring.model.MStevVesselSchedule;
 
 /**
- * Validator pelengkap: menyinkronkan status dokumen lain saat SoF selesai.
+ * Validator pelengkap (di luar business logic finance yang sudah ada di
+ * SoFFinanceService/DocAction.completeIt()): menyinkronkan status dokumen
+ * lain yang tidak semestinya jadi tanggung jawab SoFFinanceService.
+ *
+ * Saat ini menangani: setelah STEV_StatementOfFact Completed, tandai
+ * STEV_VesselSchedule terkait sebagai Completed juga (operasional bongkar
+ * muat kapal tersebut sudah selesai total secara administratif).
  */
 public class StevedoringDocumentValidator implements ModelValidator
 {
@@ -23,34 +29,31 @@ public class StevedoringDocumentValidator implements ModelValidator
         if (client != null)
             m_AD_Client_ID = client.getAD_Client_ID();
 
-        // Fix: Gunakan addDocValidate untuk event siklus dokumen (DocAction / Document Engine)
         engine.addDocValidate(MStevStatementOfFact.Table_Name, this);
     }
 
     @Override
     public String modelChange(PO po, int type) throws Exception
     {
-        return null;
+        return null; // tidak digunakan untuk kasus ini
     }
 
     @Override
     public String docValidate(PO po, int timing)
     {
-        // Fix: Gunakan TIMING_AFTER_COMPLETE pada docValidate
         if (po instanceof MStevStatementOfFact && timing == TIMING_AFTER_COMPLETE)
         {
             MStevStatementOfFact sof = (MStevStatementOfFact) po;
             MStevVesselSchedule schedule = sof.getVesselSchedule();
-            
-            if (schedule != null && !MStevVesselSchedule.DOCSTATUS_Completed.equals(schedule.getDocStatus()))
+            if (!MStevVesselSchedule.DOCSTATUS_Completed.equals(schedule.getDocStatus()))
             {
                 schedule.setDocStatus(MStevVesselSchedule.DOCSTATUS_Completed);
-                if (!schedule.save(po.get_TrxName())) // Pastikan disimpan dalam transaksi yang sama
+                if (!schedule.save())
                     log.warning("Gagal auto-update DocStatus Vessel Schedule "
-                            + schedule.getDocumentNo() + " menjadi Completed");
+                        + schedule.getDocumentNo() + " menjadi Completed");
             }
         }
-        return null; // null = sukses / lanjutkan
+        return null; // null = tidak ada error, lanjutkan
     }
 
     @Override
